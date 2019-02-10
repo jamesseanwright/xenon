@@ -6,6 +6,7 @@
   "scripts": {
     "build": "./tasks/build.js",
     "dev": "./tasks/dev.js",
+    "lint": "eslint **/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +28,7 @@
   },
   "homepage": "https://github.com/jamesseanwright/js1k-2019#readme",
   "devDependencies": {
+    "eslint": "5.13.0",
     "jsdom": "13.2.0",
     "puppeteer-firefox": "0.4.2",
     "terser": "3.16.1"

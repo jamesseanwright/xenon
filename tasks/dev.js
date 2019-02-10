@@ -16,7 +16,7 @@ const build = require('./build');
 
   await page.goto(launchUrl);
 
-  console.log('Watching for changes...')
+  console.log('Watching for changes...');
 
   fs.watch(srcDir, eventType => {
     if (eventType !== 'change') {
