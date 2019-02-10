@@ -31,6 +31,7 @@
     "eslint": "5.13.0",
     "jsdom": "13.2.0",
     "puppeteer-firefox": "0.4.2",
+    "regpack": "5.0.1",
     "terser": "3.16.1"
   }
 }

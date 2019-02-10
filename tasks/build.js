@@ -5,13 +5,29 @@
 const path = require('path');
 const fs = require('fs');
 const { JSDOM } = require('jsdom');
+const { cmdRegPack } = require('regPack');
 const terser = require('terser');
 const terserConfig = require('../terserconfig.json');
+const regPackConfig = require('../regpackconfig.json');
+const stats = require('../stats.json');
 
 const sourceDir = path.resolve(__dirname, '..', 'src');
 const distDir = path.resolve(__dirname, '..', 'dist');
 const jsPath = path.resolve(sourceDir, 'index.js');
 const htmlPath = path.resolve(sourceDir, 'index.html');
+const statsPath = path.resolve(__dirname, '..', 'stats.json');
+
+const addStats = (original, minified, packed) => {
+  stats.push({
+    original,
+    minified,
+    packed,
+  });
+};
+
+const writeStats = () => {
+  fs.writeFileSync(statsPath, JSON.stringify(stats));
+};
 
 const build = () => {
   const js = fs.readFileSync(jsPath).toString();
@@ -24,9 +40,10 @@ const build = () => {
     process.exit(1);
   }
 
+  const packedCode = cmdRegPack(code, regPackConfig);
   const scriptTarget = dom.window.document.querySelector('script[type="demo"]');
 
-  scriptTarget.textContent = code;
+  scriptTarget.textContent = packedCode;
 
   if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir);
@@ -34,9 +51,19 @@ const build = () => {
 
   fs.writeFileSync(path.resolve(distDir, 'index.html'), dom.serialize());
 
-  console.log(`Output successful! Core code is ${code.length} bytes!`);
+  console.log(`Output successful! Final build is ${packedCode.length} bytes!`);
+  addStats(js.length, code.length, packedCode.length);
 };
 
 module.exports = build;
 
-build(); // Thus it's a module _and_ an executable. Cheeky!
+// Thus it's a module _and_ an executable. Naughty!
+build();
+
+process.on('SIGINT', () => {
+  writeStats();
+});
+
+process.on('exit', () => {
+  writeStats();
+});
