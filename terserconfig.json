@@ -1,0 +1,6 @@
+{
+  "mangle": {
+    "toplevel": true,
+    "properties": true
+  }
+}

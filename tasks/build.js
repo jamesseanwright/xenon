@@ -4,8 +4,9 @@
 
 const path = require('path');
 const fs = require('fs');
-const terser = require('terser');
 const { JSDOM } = require('jsdom');
+const terser = require('terser');
+const terserConfig = require('../terserconfig.json');
 
 const sourceDir = path.resolve(__dirname, '..', 'src');
 const distDir = path.resolve(__dirname, '..', 'dist');
@@ -16,7 +17,7 @@ const build = () => {
   const js = fs.readFileSync(jsPath).toString();
   const html = fs.readFileSync(htmlPath).toString();
   const dom = new JSDOM(html);
-  const { error, code } = terser.minify(js);
+  const { error, code } = terser.minify(js, terserConfig);
 
   if (error) {
     console.error(error);
