@@ -1,0 +1,34 @@
+{
+  "name": "js1k-2019",
+  "version": "0.0.1",
+  "description": "My entry for JS1K 2019",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "./tasks/build.js",
+    "dev": "./tasks/dev.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesseanwright/js1k-2019.git"
+  },
+  "keywords": [
+    "js1k",
+    "2019",
+    "1024",
+    "bytes",
+    "codejam",
+    "competition"
+  ],
+  "author": "James Wright <james@jamesswright.co.uk>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jamesseanwright/js1k-2019/issues"
+  },
+  "homepage": "https://github.com/jamesseanwright/js1k-2019#readme",
+  "devDependencies": {
+    "jsdom": "13.2.0",
+    "puppeteer-firefox": "0.4.2",
+    "terser": "3.16.1"
+  }
+}
