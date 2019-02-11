@@ -1,5 +1,3 @@
-'use strict';
-
 const PLAYER_SPEED = 0.002;
 const PLAYER_ROTATION_INCREMENT = 1.5708;
 const PLAYER_SIZE = 0.1;
@@ -39,39 +37,38 @@ const createGame = (...entities) => ({
 });
 
 const bindKeyboard = eventTarget => {
-  const bindings = new Map();
+  const bindings = {};
 
   eventTarget.onkeydown = e => {
-    bindings.set(e.key, true);
+    bindings[e.key] = true;
   };
 
   eventTarget.onkeyup = e => {
-    bindings.set(e.key, false);
+    bindings[e.key] = false;
   };
 
   return bindings;
 };
 
-const keyboard = bindKeyboard(document.body);
+const keyboard = bindKeyboard(c);
 
 const rotate = entity => {
   const [xSpeed, ySpeed] = entity.speed;
   entity.speed = [-ySpeed, xSpeed];
 };
 
-const entityOperations = new Map([
-  ['x', e => {
+const entityOperations = {
+  x: e => {
 
-  }],
-
-  ['player', player => {
+  },
+  player: player => {
     player.speed.forEach((speed, i) => {
       player.position[i] += speed;
     });
 
-    if (keyboard.get('x')) {
+    if (keyboard.x) {
       rotate(player);
-      keyboard.set('x', false); // to prevent infinite rotation
+      keyboard.x = false; // to prevent infinite rotation
     }
 
     c.fillStyle = 'white';
@@ -98,8 +95,8 @@ const entityOperations = new Map([
     c.closePath();
     c.fill();
     c.resetTransform();
-  }],
-])
+  },
+};
 
 const player = createPlayer();
 const game = createGame(player);

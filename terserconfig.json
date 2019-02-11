@@ -1,6 +1,14 @@
 {
+  "compress": {
+    "ecma": 8,
+    "booleans_as_integers": true,
+    "unsafe": true
+  },
   "mangle": {
     "toplevel": true,
     "properties": true
+  },
+  "output": {
+    "semicolons": false
   }
 }
