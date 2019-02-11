@@ -59,10 +59,6 @@ const rotate = entity => {
   entity.speed = [-ySpeed, xSpeed];
 };
 
-const getRadians = entity => {
-
-};
-
 const entityOperations = new Map([
   ['x', e => {
 
