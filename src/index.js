@@ -5,13 +5,11 @@ const PLAYER_ROTATION_INCREMENT = 1.5708;
 const PLAYER_SIZE = 0.1;
 const PROJECTILE_BASE_SPEED = 0.01;
 
-// world size to pixel mapping assumes portrait orientation
-const aspectRatio = a.height / a.width;
-const toPixelsX = x => x * a.width * aspectRatio;
-const toPixelsY = y => y * a.height;
-const toWorldUnitsX = x => x / a.width;
-const toWorldUnitsY = y => y / a.height;
-const projectToPixels = (x, y) => [toPixelsX(x), toPixelsY(y) * aspectRatio];
+/* shared logic for width and height
+ * as game world and screen projection
+ * are square. This will save bytes! */
+const toPixels = (...inputs) => inputs.map(i => i * a.width);
+const toWorldUnits = x => x / a.width;
 
 const createPositionable = (x, y) => ({
   position: [x, y],
@@ -85,19 +83,19 @@ const entityOperations = new Map([
     c.beginPath();
 
     c.moveTo(
-      ...projectToPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
+      ...toPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
     );
 
     c.lineTo(
-      ...projectToPixels(player.position[0] + PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE / 2),
+      ...toPixels(player.position[0] + PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE / 2),
     );
 
     c.lineTo(
-      ...projectToPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE),
+      ...toPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE),
     );
 
     c.lineTo(
-      ...projectToPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
+      ...toPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
     );
 
     c.closePath();

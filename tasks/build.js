@@ -9,6 +9,7 @@ const { cmdRegPack } = require('regPack');
 const terser = require('terser');
 const terserConfig = require('../terserconfig.json');
 const regPackConfig = require('../regpackconfig.json');
+const js1kConfig = require('../js1kconfig.json');
 const stats = require('../stats.json');
 
 const sourceDir = path.resolve(__dirname, '..', 'src');
@@ -16,6 +17,12 @@ const distDir = path.resolve(__dirname, '..', 'dist');
 const jsPath = path.resolve(sourceDir, 'index.js');
 const htmlPath = path.resolve(sourceDir, 'index.html');
 const statsPath = path.resolve(__dirname, '..', 'stats.json');
+
+const serialiseSubmissionConfig = () =>
+  Object.entries(js1kConfig).reduce(
+    (serialised, [key, value]) => serialised + `\nvar ${key} = ${value};`,
+    '',
+  );
 
 const addStats = (original, minified, packed) => {
   stats.push({
@@ -42,8 +49,10 @@ const build = () => {
 
   const packedCode = cmdRegPack(code, regPackConfig);
   const scriptTarget = dom.window.document.querySelector('script[type="demo"]');
+  const configTarget = dom.window.document.querySelector('script[id="config"]');
 
   scriptTarget.textContent = packedCode;
+  configTarget.textContent = serialiseSubmissionConfig();
 
   if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir);
