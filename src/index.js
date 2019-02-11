@@ -59,6 +59,10 @@ const rotate = entity => {
   entity.speed = [-ySpeed, xSpeed];
 };
 
+const getRadians = entity => {
+
+};
+
 const entityOperations = new Map([
   ['x', e => {
 
@@ -72,34 +76,32 @@ const entityOperations = new Map([
     if (keyboard.get('x')) {
       rotate(player);
       keyboard.set('x', false); // to prevent infinite rotation
-      /*
-        [1, 0] => [0, 1]
-        [0, 1] => [-1, 0]
-        [-1, 0] => [0, -1]
-      */
     }
 
     c.fillStyle = 'white';
+    c.translate(...toPixels(player.position[0] + PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE / 2));
+    c.rotate(Math.atan2(player.speed[1], player.speed[0]));
     c.beginPath();
 
     c.moveTo(
-      ...toPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
+      ...toPixels(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2),
     );
 
     c.lineTo(
-      ...toPixels(player.position[0] + PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE / 2),
+      ...toPixels(PLAYER_SIZE, PLAYER_SIZE / 2),
     );
 
     c.lineTo(
-      ...toPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE),
+      ...toPixels(-PLAYER_SIZE / 2, PLAYER_SIZE),
     );
 
     c.lineTo(
-      ...toPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
+      ...toPixels(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2),
     );
 
     c.closePath();
     c.fill();
+    c.resetTransform();
   }],
 ])
 
@@ -117,5 +119,11 @@ const loop = () => {
 
   requestAnimationFrame(loop);
 };
+
+// sweet tricks to pixelate output
+a.width = a.width / 4;
+a.height = a.height / 4;
+a.imageSmoothingEnabled = false;
+a.style.imageRendering = 'crisp-edges';
 
 requestAnimationFrame(loop);
