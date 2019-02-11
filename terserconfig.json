@@ -6,9 +6,11 @@
   },
   "mangle": {
     "toplevel": true,
-    "properties": true
+    "properties": {
+      "reserved": ["player", "x"]
+    }
   },
   "output": {
-    "semicolons": false
+    "semicolons": true
   }
 }

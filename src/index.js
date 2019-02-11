@@ -50,7 +50,7 @@ const bindKeyboard = eventTarget => {
   return bindings;
 };
 
-const keyboard = bindKeyboard(c);
+const keyboard = bindKeyboard(document.body);
 
 const rotate = entity => {
   const [xSpeed, ySpeed] = entity.speed;
@@ -107,7 +107,7 @@ const loop = () => {
   c.fillRect(0, 0, a.width, a.height);
 
   game.entities.forEach(entity => {
-    entityOperations.get(entity.type)(entity);
+    entityOperations[entity.type](entity);
   });
 
   requestAnimationFrame(loop);
