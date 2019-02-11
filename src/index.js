@@ -13,13 +13,18 @@ const toWorldUnitsX = x => x / a.width;
 const toWorldUnitsY = y => y / a.height;
 const projectToPixels = (x, y) => [toPixelsX(x), toPixelsY(y) * aspectRatio];
 
-const createPositionable = (x, y) => ({ x, y });
-const createMoveable = (xSpeed, ySpeed) => ({ xSpeed, ySpeed });
+const createPositionable = (x, y) => ({
+  position: [x, y],
+});
+
+const createMoveable = (xSpeed, ySpeed) => ({
+  speed: [xSpeed, ySpeed]
+});
 
 const createPlayer = () => ({
   ...createPositionable(0.5 - PLAYER_SIZE / 2, 0.5 - PLAYER_SIZE / 2),
+  ...createMoveable(PLAYER_SPEED, 0),
   type: 'player',
-  rotation: 0,
   health: 3,
 });
 
@@ -29,47 +34,70 @@ const createX = (x, y) => ({
   type: 'x',
 });
 
-const createY = (x, y) => ({
-  ...createPositionable(x, y),
-  ...createMoveable(PROJECTILE_BASE_SPEED, PROJECTILE_BASE_SPEED),
-  type: 'y',
-});
-
 const createGame = (...entities) => ({
   state: 'running',
   entities,
   score: 0,
 });
 
+const bindKeyboard = eventTarget => {
+  const bindings = new Map();
+
+  eventTarget.onkeydown = e => {
+    bindings.set(e.key, true);
+  };
+
+  eventTarget.onkeyup = e => {
+    bindings.set(e.key, false);
+  };
+
+  return bindings;
+};
+
+const keyboard = bindKeyboard(document.body);
+
+const rotate = entity => {
+  const [xSpeed, ySpeed] = entity.speed;
+  entity.speed = [-ySpeed, xSpeed];
+};
+
 const entityOperations = new Map([
   ['x', e => {
 
   }],
 
-  ['y', e => {
+  ['player', player => {
+    player.speed.forEach((speed, i) => {
+      player.position[i] += speed;
+    });
 
-  }],
-
-  ['player', e => {
-    e.x += PLAYER_SPEED;
+    if (keyboard.get('x')) {
+      rotate(player);
+      keyboard.set('x', false); // to prevent infinite rotation
+      /*
+        [1, 0] => [0, 1]
+        [0, 1] => [-1, 0]
+        [-1, 0] => [0, -1]
+      */
+    }
 
     c.fillStyle = 'white';
     c.beginPath();
 
     c.moveTo(
-      ...projectToPixels(e.x - PLAYER_SIZE / 2, e.y - PLAYER_SIZE / 2),
+      ...projectToPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
     );
 
     c.lineTo(
-      ...projectToPixels(e.x + PLAYER_SIZE / 2, e.y + PLAYER_SIZE / 2),
+      ...projectToPixels(player.position[0] + PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE / 2),
     );
 
     c.lineTo(
-      ...projectToPixels(e.x - PLAYER_SIZE / 2, e.y + PLAYER_SIZE),
+      ...projectToPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE),
     );
 
     c.lineTo(
-      ...projectToPixels(e.x - PLAYER_SIZE / 2, e.y - PLAYER_SIZE / 2),
+      ...projectToPixels(player.position[0] - PLAYER_SIZE / 2, player.position[1] - PLAYER_SIZE / 2),
     );
 
     c.closePath();
@@ -85,9 +113,9 @@ const loop = () => {
   c.fillStyle = 'black';
   c.fillRect(0, 0, a.width, a.height);
 
-  for (let entity of game.entities) {
+  game.entities.forEach(entity => {
     entityOperations.get(entity.type)(entity);
-  }
+  });
 
   requestAnimationFrame(loop);
 };

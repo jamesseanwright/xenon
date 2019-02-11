@@ -29,6 +29,5 @@ const build = require('./build');
     } catch (e) {
       console.error('Build failed', e);
     }
-
   });
 })();
