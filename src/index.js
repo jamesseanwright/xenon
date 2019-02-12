@@ -1,7 +1,9 @@
 const PLAYER_SPEED = 0.002;
 const PLAYER_ROTATION_INCREMENT = 1.5708;
-const PLAYER_SIZE = 0.1;
+const PLAYER_SIZE = 0.08;
 const PROJECTILE_BASE_SPEED = 0.01;
+const PROJECTILE_SIZE = 0.06;
+const PROJECTILE_ROTATION_SPEED = 0.002;
 
 /* shared logic for width and height
  * as game world and screen projection
@@ -26,7 +28,7 @@ const createPlayer = () => ({
 
 const createX = (x, y) => ({
   ...createPositionable(x, y),
-  ...createMoveable(PROJECTILE_BASE_SPEED, PROJECTILE_BASE_SPEED),
+  ...createMoveable(PROJECTILE_BASE_SPEED, 0),
   type: 'x',
 });
 
@@ -58,8 +60,24 @@ const rotate = entity => {
 };
 
 const entityOperations = {
-  x: e => {
+  x: (e, time) => {
+    e.speed.forEach((speed, i) => {
+      e.position[i] += speed;
+    });
 
+    c.fillStyle = 'red';
+
+    c.translate(
+      ...toPixels(e.position[0] + PROJECTILE_SIZE / 2, e.position[1] + PROJECTILE_SIZE / 2),
+    );
+
+    c.rotate(PROJECTILE_ROTATION_SPEED * time);
+
+    c.fillRect(
+      ...toPixels(-PROJECTILE_SIZE / 2, -PROJECTILE_SIZE / 2, PROJECTILE_SIZE, PROJECTILE_SIZE),
+    );
+
+    c.resetTransform();
   },
   player: player => {
     player.speed.forEach((speed, i) => {
@@ -99,15 +117,16 @@ const entityOperations = {
 };
 
 const player = createPlayer();
-const game = createGame(player);
+const x = createX(0.2, 0.3); // TODO: autogenerate
+const game = createGame(player, x);
 
-const loop = () => {
+const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
   c.fillStyle = 'black';
   c.fillRect(0, 0, a.width, a.height);
 
   game.entities.forEach(entity => {
-    entityOperations[entity.type](entity);
+    entityOperations[entity.type](entity, time);
   });
 
   requestAnimationFrame(loop);
