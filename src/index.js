@@ -1,9 +1,10 @@
 const PLAYER_SPEED = 0.002;
 const PLAYER_ROTATION_INCREMENT = 1.5708;
 const PLAYER_SIZE = 0.08;
-const PROJECTILE_BASE_SPEED = 0.01;
-const PROJECTILE_SIZE = 0.06;
-const PROJECTILE_ROTATION_SPEED = 0.002;
+const X_BASE_SPEED = 0.01;
+const X_SIZE = 0.06;
+const X_PADDING = 0.01;
+const X_ROTATION_SPEED = 0.002;
 
 /* shared logic for width and height
  * as game world and screen projection
@@ -28,7 +29,7 @@ const createPlayer = () => ({
 
 const createX = (x, y) => ({
   ...createPositionable(x, y),
-  ...createMoveable(PROJECTILE_BASE_SPEED, 0),
+  ...createMoveable(X_BASE_SPEED, 0),
   type: 'x',
 });
 
@@ -68,14 +69,38 @@ const entityOperations = {
     c.fillStyle = 'red';
 
     c.translate(
-      ...toPixels(e.position[0] + PROJECTILE_SIZE / 2, e.position[1] + PROJECTILE_SIZE / 2),
+      ...toPixels(e.position[0] + X_SIZE / 2, e.position[1] + X_SIZE / 2),
     );
 
-    c.rotate(PROJECTILE_ROTATION_SPEED * time);
+    c.rotate(X_ROTATION_SPEED * time);
 
     c.fillRect(
-      ...toPixels(-PROJECTILE_SIZE / 2, -PROJECTILE_SIZE / 2, PROJECTILE_SIZE, PROJECTILE_SIZE),
+      ...toPixels(-X_SIZE / 2, -X_SIZE / 2, X_SIZE, X_SIZE),
     );
+
+    c.strokeStyle = 'white';
+
+    c.moveTo(
+      ...toPixels(-X_SIZE / 2 + X_PADDING, -X_SIZE / 2 + X_PADDING),
+    );
+
+    c.lineTo(
+      ...toPixels(X_SIZE / 2 - X_PADDING, X_SIZE / 2 - X_PADDING),
+    );
+
+    c.closePath();
+    c.stroke();
+
+    c.moveTo(
+      ...toPixels(-X_SIZE / 2 + X_PADDING, X_SIZE / 2 - X_PADDING),
+    );
+
+    c.lineTo(
+      ...toPixels(X_SIZE / 2 - X_PADDING, -X_SIZE /2 + X_PADDING),
+    );
+
+    c.closePath();
+    c.stroke();
 
     c.resetTransform();
   },
