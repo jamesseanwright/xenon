@@ -1,7 +1,7 @@
-const PLAYER_SPEED = 0.002;
+const PLAYER_SPEED = 0.005;
 const PLAYER_ROTATION_INCREMENT = 1.5708;
 const PLAYER_SIZE = 0.08;
-const X_BASE_SPEED = 0.01;
+const X_BASE_SPEED = 0.004;
 const X_SIZE = 0.06;
 const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
@@ -13,7 +13,7 @@ const toPixels = (...inputs) => inputs.map(i => i * a.width);
 const toWorldUnits = x => x / a.width;
 
 const createPositionable = (x, y) => ({
-  position: [x, y],
+  pos: [x, y],
 });
 
 const createMoveable = (xSpeed, ySpeed) => ({
@@ -34,7 +34,6 @@ const createX = (x, y) => ({
 });
 
 const createGame = (...entities) => ({
-  state: 'running',
   entities,
   score: 0,
 });
@@ -63,13 +62,13 @@ const rotate = entity => {
 const entityOperations = {
   x: (e, time) => {
     e.speed.forEach((speed, i) => {
-      e.position[i] += speed;
+      e.pos[i] += speed;
     });
 
     c.fillStyle = 'red';
 
     c.translate(
-      ...toPixels(e.position[0] + X_SIZE / 2, e.position[1] + X_SIZE / 2),
+      ...toPixels(e.pos[0] + X_SIZE / 2, e.pos[1] + X_SIZE / 2),
     );
 
     c.rotate(X_ROTATION_SPEED * time);
@@ -106,7 +105,7 @@ const entityOperations = {
   },
   player: player => {
     player.speed.forEach((speed, i) => {
-      player.position[i] += speed;
+      player.pos[i] += speed;
     });
 
     if (keyboard.x) {
@@ -115,7 +114,7 @@ const entityOperations = {
     }
 
     c.fillStyle = 'white';
-    c.translate(...toPixels(player.position[0] + PLAYER_SIZE / 2, player.position[1] + PLAYER_SIZE / 2));
+    c.translate(...toPixels(player.pos[0] + PLAYER_SIZE / 2, player.pos[1] + PLAYER_SIZE / 2));
     c.rotate(Math.atan2(player.speed[1], player.speed[0]));
     c.beginPath();
 
@@ -160,7 +159,6 @@ const loop = time => {
 // sweet tricks to pixelate output
 a.width = a.width / 4;
 a.height = a.height / 4;
-a.imageSmoothingEnabled = false;
 a.style.imageRendering = 'crisp-edges';
 
 requestAnimationFrame(loop);
