@@ -15,8 +15,9 @@ const HEALTH_BAR_HEIGHT = 0.06;
  * are square. This will save bytes! */
 const toPixels = (...inputs) => inputs.map(i => i * a.width);
 
-const createPositionable = (x, y) => ({
+const createPositionable = (x, y, size) => ({
   pos: [x, y],
+  size,
 });
 
 const createMoveable = (xSpeed, ySpeed) => ({
@@ -24,14 +25,14 @@ const createMoveable = (xSpeed, ySpeed) => ({
 });
 
 const createPlayer = () => ({
-  ...createPositionable(0.5 - PLAYER_SIZE / 2, 0.5 - PLAYER_SIZE / 2),
+  ...createPositionable(0.5 - PLAYER_SIZE / 2, 0.5 - PLAYER_SIZE / 2, PLAYER_SIZE),
   ...createMoveable(PLAYER_SPEED, 0),
   type: 'player',
   health: 1,
 });
 
 const createX = (x, y) => ({
-  ...createPositionable(x, y),
+  ...createPositionable(x, y, X_SIZE),
   ...createMoveable(X_BASE_SPEED, 0),
   type: 'x',
 });
@@ -66,6 +67,21 @@ const keyboard = bindKeyboard(this);
 const rotate = entity => {
   const [xSpeed, ySpeed] = entity.speed;
   entity.speed = [-ySpeed, xSpeed];
+};
+
+const areColliding = (a, b) =>
+  a.pos[0] >= b.pos[0] && a.pos[1] >= b.pos[1] && a.pos[0] <= b.pos[0] + b.size && a.pos[1] <= b.pos[1] + b.size;
+
+const handleCollisions = (player, entities) => {
+  entities.forEach(entity => {
+    if (entity.type !== 'x' || entity.deactivated) {
+      return;
+    }
+
+    if (areColliding(player, entity)) {
+      entity.deactivated = true;
+    }
+  });
 };
 
 const entityOperations = {
@@ -104,7 +120,7 @@ const entityOperations = {
     );
 
     c.lineTo(
-      ...toPixels(X_SIZE / 2 - X_PADDING, -X_SIZE /2 + X_PADDING),
+      ...toPixels(X_SIZE / 2 - X_PADDING, -X_SIZE / 2 + X_PADDING),
     );
 
     c.closePath();
@@ -112,7 +128,7 @@ const entityOperations = {
 
     c.resetTransform();
   },
-  player: player => {
+  player: (player, time, entities) => {
     player.speed.forEach((speed, i) => {
       player.pos[i] += speed;
     });
@@ -123,6 +139,8 @@ const entityOperations = {
     }
 
     player.health -= PLAYER_HEALTH_DECREMENT;
+
+    handleCollisions(player, entities);
 
     c.fillStyle = 'white';
     c.translate(...toPixels(player.pos[0] + PLAYER_SIZE / 2, player.pos[1] + PLAYER_SIZE / 2));
@@ -174,7 +192,11 @@ const loop = time => {
   c.fillRect(0, 0, a.width, a.height);
 
   game.entities.forEach(entity => {
-    entityOperations[entity.type](entity, time);
+    if (entity.deactivated) {
+      return;
+    }
+
+    entityOperations[entity.type](entity, time, game.entities);
   });
 
   requestAnimationFrame(loop);
