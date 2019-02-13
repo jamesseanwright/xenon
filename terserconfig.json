@@ -7,7 +7,7 @@
   "mangle": {
     "toplevel": true,
     "properties": {
-      "reserved": ["player", "x"]
+      "reserved": ["player", "x", "healthBar"]
     }
   },
   "output": {
