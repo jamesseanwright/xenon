@@ -1,13 +1,12 @@
 const PLAYER_SPEED = 0.005;
 const PLAYER_SIZE = 0.08;
-const PLAYER_HEALTH = 50;
+const PLAYER_MAX_HEALTH = 1;
 const PLAYER_HEALTH_DECREMENT = 0.002;
 const X_BASE_SPEED = 0.004;
 const X_SIZE = 0.06;
 const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
 const HEALTH_BAR_MARGIN = 0.05;
-const HEALTH_BAR_WIDTH = 1;
 const HEALTH_BAR_HEIGHT = 0.06;
 
 /* shared logic for width and height
@@ -28,7 +27,7 @@ const createPlayer = () => ({
   ...createPositionable(0.5 - PLAYER_SIZE / 2, 0.5 - PLAYER_SIZE / 2, PLAYER_SIZE),
   ...createMoveable(PLAYER_SPEED, 0),
   type: 'player',
-  health: 1,
+  health: PLAYER_MAX_HEALTH,
 });
 
 const createX = (x, y) => ({
@@ -79,6 +78,7 @@ const handleCollisions = (player, entities) => {
     }
 
     if (areColliding(player, entity)) {
+      player.health = PLAYER_MAX_HEALTH;
       entity.deactivated = true;
     }
   });
@@ -175,7 +175,7 @@ const entityOperations = {
       ...toPixels(
         HEALTH_BAR_MARGIN,
         HEALTH_BAR_MARGIN,
-        (HEALTH_BAR_WIDTH - HEALTH_BAR_MARGIN * 2) * healthBar.player.health,
+        (PLAYER_MAX_HEALTH - HEALTH_BAR_MARGIN * 2) * healthBar.player.health,
         HEALTH_BAR_HEIGHT - HEALTH_BAR_MARGIN,
       ),
     );
