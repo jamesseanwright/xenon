@@ -1,5 +1,4 @@
 const PLAYER_SPEED = 0.005;
-const PLAYER_ROTATION_INCREMENT = 1.5708;
 const PLAYER_SIZE = 0.08;
 const X_BASE_SPEED = 0.004;
 const X_SIZE = 0.06;
@@ -10,7 +9,6 @@ const X_ROTATION_SPEED = 0.002;
  * as game world and screen projection
  * are square. This will save bytes! */
 const toPixels = (...inputs) => inputs.map(i => i * a.width);
-const toWorldUnits = x => x / a.width;
 
 const createPositionable = (x, y) => ({
   pos: [x, y],
@@ -52,7 +50,8 @@ const bindKeyboard = eventTarget => {
   return bindings;
 };
 
-const keyboard = bindKeyboard(document.body);
+// this === window in this scope
+const keyboard = bindKeyboard(this);
 
 const rotate = entity => {
   const [xSpeed, ySpeed] = entity.speed;
@@ -77,7 +76,7 @@ const entityOperations = {
       ...toPixels(-X_SIZE / 2, -X_SIZE / 2, X_SIZE, X_SIZE),
     );
 
-    c.strokeStyle = 'white';
+    c.strokeStyle = '#fff';
 
     c.moveTo(
       ...toPixels(-X_SIZE / 2 + X_PADDING, -X_SIZE / 2 + X_PADDING),
@@ -142,23 +141,24 @@ const entityOperations = {
 
 const player = createPlayer();
 const x = createX(0.2, 0.3); // TODO: autogenerate
-const game = createGame(player, x);
+const game = createGame(x, player);
 
 const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
-  c.fillStyle = 'black';
+  c.fillStyle = '#000';
   c.fillRect(0, 0, a.width, a.height);
 
   game.entities.forEach(entity => {
     entityOperations[entity.type](entity, time);
   });
 
-  requestAnimationFrame(loop);
+  // requestAnimationFrame(loop);
 };
 
 // sweet tricks to pixelate output
 a.width = a.width / 4;
 a.height = a.height / 4;
+c.imageSmoothingEnabled = false;
 a.style.imageRendering = 'crisp-edges';
 
 requestAnimationFrame(loop);
