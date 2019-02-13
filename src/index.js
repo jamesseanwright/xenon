@@ -20,7 +20,7 @@ const createPositionable = (x, y, size) => ({
 });
 
 const createMoveable = (xSpeed, ySpeed) => ({
-  speed: [xSpeed, ySpeed]
+  speed: [xSpeed, ySpeed],
 });
 
 const createPlayer = () => ({
