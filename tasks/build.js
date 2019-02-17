@@ -5,7 +5,7 @@
 const path = require('path');
 const fs = require('fs');
 const { JSDOM } = require('jsdom');
-const { cmdRegPack } = require('regPack');
+const { cmdRegPack } = require('regpack');
 const terser = require('terser');
 const terserConfig = require('../terserconfig.json');
 const regPackConfig = require('../regpackconfig.json');
