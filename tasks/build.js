@@ -54,13 +54,13 @@ const build = () => {
 
 module.exports = build;
 
-// Thus it's a module _and_ an executable. Naughty!
+/* Thus it's a module _and_ an executable.
+ * A terrible practice, but it'll do */
 build();
+writeStats();
 
-process.on('SIGINT', () => {
-  writeStats();
-});
-
-process.on('exit', () => {
+/* To avoid loads of file system
+ * writes when in watch mode */
+process.on('SIGTERM', () => {
   writeStats();
 });

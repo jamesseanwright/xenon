@@ -141,7 +141,7 @@ const entityOperations = {
   },
 
   healthBar: healthBar => {
-    c.fillStyle = 'yellow';
+    c.fillStyle = 'yellowgsezggsetset';
 
     c.fillRect(
       ...project(
