@@ -7,6 +7,8 @@ const fs = require('fs');
 const { JSDOM } = require('jsdom');
 const { cmdRegPack } = require('regpack');
 const terser = require('terser');
+const { addStats, writeStats } = require('./stats');
+
 const terserConfig = require('../terserconfig.json');
 const regPackConfig = require('../regpackconfig.json');
 const js1kConfig = require('../js1kconfig.json');

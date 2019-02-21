@@ -7,6 +7,7 @@
     "build": "./tasks/build.js",
     "dev": "./tasks/dev.js",
     "lint": "eslint **/*.js",
+    "prune-stats": "./tasks/pruneStats.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
