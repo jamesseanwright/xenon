@@ -5,12 +5,9 @@ const path = require('path');
 const statsPath = path.resolve(__dirname, '..', 'stats.json');
 let stats = require('../stats.json');
 
-const doDatesMatch = (currentEntry, nextEntry) => {
-  const currentDate = new Date(currentEntry.date);
-  const nextDate = new Date(nextEntry.date);
-
-  return ['getDate', 'getMonth', 'getYear'].every(
-    method => currentDate[method]() === nextDate[method](),
+const areEntriesIdentical = (currentEntry, nextEntry) => {
+  ['original', 'minified', 'packed'].every(
+    prop => currentEntry[prop]() === nextEntry[prop],
   );
 };
 
@@ -22,14 +19,13 @@ const pruneStats = () =>
 
     return currentEntry &&
       nextEntry &&
-      doDatesMatch(currentEntry, nextEntry)
+      areEntriesIdentical(currentEntry, nextEntry)
       ? undefined
       : currentEntry;
   }).filter(Boolean));
 
 const addStats = (original, minified, packed) => {
   stats.push({
-    date: new Date(),
     original,
     minified,
     packed,
