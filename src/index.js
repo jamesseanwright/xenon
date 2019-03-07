@@ -124,24 +124,22 @@ const entityOperations = {
 
     handleCollisions(player, entities);
 
-    const offsetLength = PLAYER_SIZE * (Math.sqrt(3) / 2);
-
     c.fillStyle = 'white';
-    c.translate(...project(player.pos[0] + offsetLength / 2, player.pos[1] + offsetLength / 2));
+    c.translate(...project(player.pos[0] + PLAYER_SIZE / 2, player.pos[1] + PLAYER_SIZE / 2));
     c.rotate(Math.atan2(player.speed[1], player.speed[0]));
 
     c.beginPath();
-    c.moveTo(...project(-offsetLength / 2, -offsetLength / 2))
-    c.lineTo(...project(offsetLength, offsetLength / 2));
-    c.lineTo(...project(-offsetLength / 2, offsetLength));
-    c.lineTo(...project(-offsetLength / 2, -offsetLength / 2));
+    c.moveTo(...project(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2));
+    c.lineTo(...project(PLAYER_SIZE / 2, PLAYER_SIZE / 8)); // TODO: still not exactly equilateral...
+    c.lineTo(...project(-PLAYER_SIZE / 2, PLAYER_SIZE / 2));
+    c.lineTo(...project(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2));
     c.closePath();
     c.fill();
     c.resetTransform();
   },
 
   healthBar: healthBar => {
-    c.fillStyle = 'yellowgsezggsetset';
+    c.fillStyle = 'yellow';
 
     c.fillRect(
       ...project(
@@ -154,6 +152,7 @@ const entityOperations = {
   },
 };
 
+// util function for debugging
 const drawBounds = ({ pos, size }) => {
   if (pos && size) {
     c.strokeStyle = 'pink';
@@ -176,7 +175,6 @@ const loop = time => {
     }
 
     entityOperations[entity.type](entity, time, game.entities);
-    drawBounds(entity);
   });
 
   requestAnimationFrame(loop);
