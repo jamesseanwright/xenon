@@ -1,3 +1,5 @@
+// TODO: profile perf for 60 FPS
+
 const PLAYER_SPEED = 0.005;
 const PLAYER_SIZE = 0.085;
 const PLAYER_MAX_HEALTH = 1;
