@@ -204,7 +204,7 @@ const drawBounds = ({ pos, size }) => {
 
 const player = createPlayer();
 const x = createX(0.2, 0.3); // TODO: autogenerate
-const game = createGame(x, ...generateXs(), createHealthBar(player));
+const game = createGame(x, ...generateXs(), player, createHealthBar(player));
 
 const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
