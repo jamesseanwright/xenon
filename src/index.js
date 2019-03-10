@@ -1,5 +1,7 @@
 // TODO: profile perf for 60 FPS
+// TODO: run through prettier
 
+const WORLD_SIZE = 1;
 const PLAYER_SPEED = 0.005;
 const PLAYER_SIZE = 0.085;
 const PLAYER_MAX_HEALTH = 1;
@@ -10,6 +12,9 @@ const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
 const HEALTH_BAR_MARGIN = 0.05;
 const HEALTH_BAR_HEIGHT = 0.06;
+
+const range = n => Array(n).fill(null);
+const randomBit = () => Math.round(Math.random());
 
 /* shared logic for width and height
  * as game world and screen projection
@@ -32,9 +37,9 @@ const createPlayer = () => ({
   health: PLAYER_MAX_HEALTH,
 });
 
-const createX = (x, y) => ({
+const createX = (x, y, xSpeed, ySpeed) => ({
   ...createPositionable(x, y, X_SIZE),
-  ...createMoveable(X_BASE_SPEED, 0),
+  ...createMoveable(xSpeed, ySpeed),
   type: 'x',
 });
 
@@ -47,6 +52,36 @@ const createGame = (...entities) => ({
   entities,
   score: 0,
 });
+
+/* Going to comment this function because
+ * it's more involved than the others */
+const generateXs = () =>
+  range(Math.floor(WORLD_SIZE / X_SIZE))
+    .map(() => {
+      // the outer side at which the x sits, above or below the game world on the x or y axis
+      const outerScalar = randomBit() === 0 ? -X_SIZE : WORLD_SIZE;
+
+      // the second coordinate _within_ the game world
+      const innerScalar = Math.random();
+
+      /* A means of randomising whether the outer or inner is
+       * used for the x or y value, which can be spread */
+      const pos = randomBit() === 0
+        ? [outerScalar, innerScalar]
+        : [innerScalar, outerScalar];
+
+      /* negate the pos vector so the x travels in the
+       * right direction. Sorry for the nested ternary! */
+      const speed = pos.map(p =>
+        p === -X_SIZE
+          ? X_BASE_SPEED
+          : p === WORLD_SIZE
+            ? -X_BASE_SPEED
+            : 0
+      );
+
+      return createX(...pos, ...speed);
+    });
 
 const bindKeyboard = eventTarget => {
   const bindings = {};
@@ -71,7 +106,10 @@ const rotate = entity => {
 };
 
 const areColliding = (a, b) =>
-  a.pos[0] >= b.pos[0] && a.pos[1] >= b.pos[1] && a.pos[0] <= b.pos[0] + b.size && a.pos[1] <= b.pos[1] + b.size;
+  a.pos[0] >= b.pos[0] &&
+  a.pos[1] >= b.pos[1] &&
+  a.pos[0] <= b.pos[0] + b.size &&
+  a.pos[1] <= b.pos[1] + b.size;
 
 const handleCollisions = (player, entities) => {
   entities.forEach(entity => {
@@ -92,7 +130,7 @@ const entityOperations = {
       e.pos[i] += speed;
     });
 
-    c.fillStyle = 'red';
+    c.fillStyle = '#008';
 
     c.translate(...project(e.pos[0] + X_SIZE / 2, e.pos[1] + X_SIZE / 2));
     c.rotate(X_ROTATION_SPEED * time);
@@ -100,11 +138,13 @@ const entityOperations = {
 
     c.strokeStyle = '#fff';
 
+    c.beginPath();
     c.moveTo(...project(-X_SIZE / 2 + X_PADDING, -X_SIZE / 2 + X_PADDING));
     c.lineTo(...project(X_SIZE / 2 - X_PADDING, X_SIZE / 2 - X_PADDING));
     c.closePath();
     c.stroke();
 
+    c.beginPath();
     c.moveTo(...project(-X_SIZE / 2 + X_PADDING, X_SIZE / 2 - X_PADDING));
     c.lineTo(...project(X_SIZE / 2 - X_PADDING, -X_SIZE / 2 + X_PADDING));
     c.closePath();
@@ -154,7 +194,7 @@ const entityOperations = {
   },
 };
 
-// util function for debugging
+// util function for debugging TODO: remove pre-submission!
 const drawBounds = ({ pos, size }) => {
   if (pos && size) {
     c.strokeStyle = 'pink';
@@ -164,7 +204,7 @@ const drawBounds = ({ pos, size }) => {
 
 const player = createPlayer();
 const x = createX(0.2, 0.3); // TODO: autogenerate
-const game = createGame(x, player, createHealthBar(player));
+const game = createGame(x, ...generateXs(), createHealthBar(player));
 
 const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
