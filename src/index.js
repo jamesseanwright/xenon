@@ -15,7 +15,7 @@ const HEALTH_BAR_MARGIN = 0.05;
 const HEALTH_BAR_HEIGHT = 0.06;
 
 const range = n => Array(n).fill(0);
-const randomBit = () => Math.round(Math.random());
+const randomBit = () => Math.random() + 0.5 | 0;
 
 /* shared logic for width and height
  * as game world and screen projection
@@ -92,7 +92,7 @@ const computeXProps = (i, spawnOffsetMs = 0) => {
 };
 
 const generateXs = () =>
-  range(Math.floor(WORLD_SIZE / X_SIZE))
+  range((WORLD_SIZE / X_SIZE / 3) | 0) // bitwise floor
     .map((_, i) => {
       const [pos, speed, spawnDelayMs] = computeXProps(i);
 
@@ -134,9 +134,9 @@ const rotate = entity => {
 };
 
 const areColliding = (a, b) =>
-  a.pos[0] >= b.pos[0] &&
-  a.pos[1] >= b.pos[1] &&
+  a.pos[0] + a.size >= b.pos[0] &&
   a.pos[0] <= b.pos[0] + b.size &&
+  a.pos[1] + a.size >= b.pos[1] &&
   a.pos[1] <= b.pos[1] + b.size;
 
 const handleCollisions = (player, entities, time) => {
