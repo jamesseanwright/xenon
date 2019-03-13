@@ -63,37 +63,53 @@ const createGame = (...entities) => ({
 
 /* Going to comment this function because
  * it's more involved than the others */
+const computeXProps = (i, spawnOffsetMs = 0) => {
+  // the outer side at which the x sits, above or below the game world on the x or y axis
+  const outerScalar = randomBit() === 0 ? -X_SIZE : WORLD_SIZE;
+
+  // the second coordinate _within_ the game world's bounds
+  const innerScalar = Math.random();
+
+  /* A means of randomising whether the outer or inner is
+   * used for the x or y value, which can be spread */
+  const pos = randomBit() === 0
+    ? [outerScalar, innerScalar]
+    : [innerScalar, outerScalar];
+
+  /* negate the pos vector so the x travels in the
+   * right direction. Sorry for the nested ternary! */
+  const speed = pos.map(p =>
+    p === -X_SIZE
+      ? X_BASE_SPEED
+      : p === WORLD_SIZE
+        ? -X_BASE_SPEED
+        : 0
+  );
+
+  const spawnDelayMs = i * SPAWN_DELAY_INCREMENT_MS + spawnOffsetMs;
+
+  return [pos, speed, spawnDelayMs];
+};
+
 const generateXs = () =>
   range(Math.floor(WORLD_SIZE / X_SIZE))
     .map((_, i) => {
-      // the outer side at which the x sits, above or below the game world on the x or y axis
-      const outerScalar = randomBit() === 0 ? -X_SIZE : WORLD_SIZE;
-
-      // the second coordinate _within_ the game world's bounds
-      const innerScalar = Math.random();
-
-      /* A means of randomising whether the outer or inner is
-       * used for the x or y value, which can be spread */
-      const pos = randomBit() === 0
-        ? [outerScalar, innerScalar]
-        : [innerScalar, outerScalar];
-
-      /* negate the pos vector so the x travels in the
-       * right direction. Sorry for the nested ternary! */
-      const speed = pos.map(p =>
-        p === -X_SIZE
-          ? X_BASE_SPEED
-          : p === WORLD_SIZE
-            ? -X_BASE_SPEED
-            : 0
-      );
+      const [pos, speed, spawnDelayMs] = computeXProps(i);
 
       return createX(
         ...pos,
         ...speed,
-        i * SPAWN_DELAY_INCREMENT_MS,
+        spawnDelayMs,
       );
     });
+
+const resetX = (x, time) => {
+  const [pos, speed, spawnDelayMs] = computeXProps(1, time);
+
+  x.pos = pos;
+  x.speed = speed;
+  x.spawnDelayMs = spawnDelayMs;
+};
 
 const bindKeyboard = eventTarget => {
   const bindings = {};
@@ -131,14 +147,19 @@ const handleCollisions = (player, entities, time) => {
 
     if (areColliding(player, entity)) {
       player.health = PLAYER_MAX_HEALTH;
-      entity.deactivated = true;
-      entity.isSpawnable && (entity.spawnDelayMs = time + SPAWN_DELAY_INCREMENT_MS);
+      resetX(entity, time);
     }
   });
 };
 
+const hasLeftWorld = e => e.pos.some(p => p < 0 - e.size || p > 1 + e.size);
+
 const entityOperations = {
   x: (e, time) => {
+    if (hasLeftWorld(e)) {
+      resetX(e, time);
+    }
+
     e.speed.forEach((speed, i) => {
       e.pos[i] += speed;
     });
