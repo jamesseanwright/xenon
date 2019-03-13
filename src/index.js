@@ -280,6 +280,9 @@ const loop = time => {
 // sweet tricks to pixelate output
 a.width /= 4;
 a.height /= 4;
-a.style.imageRendering = 'pixelated'; // TODO: working value for FF
+
+a.style.imageRendering = navigator.userAgent.includes('Firefox')
+  ? 'optimizeSpeed'
+  : 'pixelated';
 
 requestAnimationFrame(loop);
