@@ -10,6 +10,7 @@ const X_BASE_SPEED = 0.004;
 const X_SIZE = 0.06;
 const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
+const X_SPAWN_DELAY_INCREMENT_MS = 1000;
 const HEALTH_BAR_MARGIN = 0.05;
 const HEALTH_BAR_HEIGHT = 0.06;
 
@@ -30,6 +31,12 @@ const createMoveable = (xSpeed, ySpeed) => ({
   speed: [xSpeed, ySpeed],
 });
 
+const createSpawnable = spawnDelayMs => ({
+  deactivated: true,
+  hasSpawned: false,
+  spawnDelayMs,
+});
+
 const createPlayer = () => ({
   ...createPositionable(0.5 - PLAYER_SIZE / 2, 0.5 - PLAYER_SIZE / 2, PLAYER_SIZE),
   ...createMoveable(PLAYER_SPEED, 0),
@@ -37,9 +44,10 @@ const createPlayer = () => ({
   health: PLAYER_MAX_HEALTH,
 });
 
-const createX = (x, y, xSpeed, ySpeed) => ({
+const createX = (x, y, xSpeed, ySpeed, spawnDelayMs) => ({
   ...createPositionable(x, y, X_SIZE),
   ...createMoveable(xSpeed, ySpeed),
+  ...createSpawnable(spawnDelayMs),
   type: 'x',
 });
 
@@ -57,11 +65,11 @@ const createGame = (...entities) => ({
  * it's more involved than the others */
 const generateXs = () =>
   range(Math.floor(WORLD_SIZE / X_SIZE))
-    .map(() => {
+    .map((_, i) => {
       // the outer side at which the x sits, above or below the game world on the x or y axis
       const outerScalar = randomBit() === 0 ? -X_SIZE : WORLD_SIZE;
 
-      // the second coordinate _within_ the game world
+      // the second coordinate _within_ the game world's bounds
       const innerScalar = Math.random();
 
       /* A means of randomising whether the outer or inner is
@@ -80,7 +88,11 @@ const generateXs = () =>
             : 0
       );
 
-      return createX(...pos, ...speed);
+      return createX(
+        ...pos,
+        ...speed,
+        i * X_SPAWN_DELAY_INCREMENT_MS,
+      );
     });
 
 const bindKeyboard = eventTarget => {
@@ -102,7 +114,7 @@ const keyboard = bindKeyboard(this);
 
 const rotate = entity => {
   const [xSpeed, ySpeed] = entity.speed;
-  entity.speed = [-ySpeed, xSpeed];
+  entity.speed = [-ySpeed, xSpeed]; // TODO: make mutable for perf?! Profile!
 };
 
 const areColliding = (a, b) =>
@@ -203,8 +215,7 @@ const drawBounds = ({ pos, size }) => {
 };
 
 const player = createPlayer();
-const x = createX(0.2, 0.3); // TODO: autogenerate
-const game = createGame(x, ...generateXs(), player, createHealthBar(player));
+const game = createGame(...generateXs(), player, createHealthBar(player));
 
 const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
@@ -212,6 +223,12 @@ const loop = time => {
   c.fillRect(0, 0, a.width, a.height);
 
   game.entities.forEach(entity => {
+    // TODO: lift?
+    if (entity.deactivated && !entity.hasSpawned && entity.spawnDelayMs < time) {
+      entity.deactivated = false;
+      entity.hasSpawned = true;
+    }
+
     if (entity.deactivated) {
       return;
     }
