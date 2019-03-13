@@ -21,6 +21,24 @@ const HEALTH_BAR_HEIGHT = 0.06;
 const range = n => Array(n).fill(0);
 const randomBit = () => Math.random() + 0.5 | 0;
 
+const audioContext = new AudioContext();
+
+const playCollectionSound = () => {
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  osc.type = 'square';
+  osc.frequency.value = 166;
+
+  gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.000001, audioContext.currentTime + 0.3);
+
+  osc.connect(gain);
+  gain.connect(audioContext.destination);
+  osc.start();
+  osc.stop(audioContext.currentTime + 0.3);
+};
+
 /* shared logic for width and height
  * as game world and screen projection
  * are square. This will save bytes! */
@@ -163,6 +181,7 @@ const handleCollisions = (player, entities, time) => {
       player.health = PLAYER_MAX_HEALTH;
       incrementScore();
       resetX(entity, time);
+      playCollectionSound();
     }
   });
 };
@@ -257,14 +276,6 @@ const renderGameOverMessage = () => {
 
   c.fillStyle = '#fff';
   c.fillText(message, a.width / 2 - width / 2, a.height / 2 - 8); // default font size is 16px
-};
-
-// util function for debugging TODO: remove pre-submission!
-const drawBounds = ({ pos, size }) => {
-  if (pos && size) {
-    c.strokeStyle = 'pink';
-    c.strokeRect(...project(pos[0], pos[1], size, size));
-  }
 };
 
 const player = createPlayer();
