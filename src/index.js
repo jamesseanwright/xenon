@@ -260,9 +260,8 @@ const loop = time => {
 };
 
 // sweet tricks to pixelate output
-a.width = a.width / 4;
-a.height = a.height / 4;
-c.imageSmoothingEnabled = false;
-a.style.imageRendering = 'crisp-edges';
+a.width /= 4;
+a.height /= 4;
+a.style.imageRendering = 'pixelated'; // TODO: working value for FF
 
 requestAnimationFrame(loop);
