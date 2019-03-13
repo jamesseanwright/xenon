@@ -10,7 +10,7 @@ const X_BASE_SPEED = 0.004;
 const X_SIZE = 0.06;
 const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
-const X_SPAWN_DELAY_INCREMENT_MS = 1000;
+const SPAWN_DELAY_INCREMENT_MS = 1000;
 const HEALTH_BAR_MARGIN = 0.05;
 const HEALTH_BAR_HEIGHT = 0.06;
 
@@ -32,8 +32,8 @@ const createMoveable = (xSpeed, ySpeed) => ({
 });
 
 const createSpawnable = spawnDelayMs => ({
+  spawnable: true,
   deactivated: true,
-  hasSpawned: false,
   spawnDelayMs,
 });
 
@@ -91,7 +91,7 @@ const generateXs = () =>
       return createX(
         ...pos,
         ...speed,
-        i * X_SPAWN_DELAY_INCREMENT_MS,
+        i * SPAWN_DELAY_INCREMENT_MS,
       );
     });
 
@@ -123,7 +123,7 @@ const areColliding = (a, b) =>
   a.pos[0] <= b.pos[0] + b.size &&
   a.pos[1] <= b.pos[1] + b.size;
 
-const handleCollisions = (player, entities) => {
+const handleCollisions = (player, entities, time) => {
   entities.forEach(entity => {
     if (entity.type !== 'x' || entity.deactivated) {
       return;
@@ -132,6 +132,7 @@ const handleCollisions = (player, entities) => {
     if (areColliding(player, entity)) {
       player.health = PLAYER_MAX_HEALTH;
       entity.deactivated = true;
+      entity.isSpawnable && (entity.spawnDelayMs = time + SPAWN_DELAY_INCREMENT_MS);
     }
   });
 };
@@ -176,7 +177,7 @@ const entityOperations = {
 
     player.health -= PLAYER_HEALTH_DECREMENT;
 
-    handleCollisions(player, entities);
+    handleCollisions(player, entities, time);
 
     c.fillStyle = 'white';
     c.translate(...project(player.pos[0] + PLAYER_SIZE / 2, player.pos[1] + PLAYER_SIZE / 2));
@@ -223,15 +224,15 @@ const loop = time => {
   c.fillRect(0, 0, a.width, a.height);
 
   game.entities.forEach(entity => {
-    // TODO: lift?
-    if (entity.deactivated && !entity.hasSpawned && entity.spawnDelayMs < time) {
+    if (entity.deactivated && entity.spawnDelayMs < time) {
       entity.deactivated = false;
-      entity.hasSpawned = true;
     }
 
     if (entity.deactivated) {
       return;
     }
+
+    drawBounds(entity);
 
     entityOperations[entity.type](entity, time, game.entities);
   });
