@@ -59,6 +59,7 @@ const createHealthBar = player => ({
 const createGame = (...entities) => ({
   entities,
   score: 0,
+  over: false,
 });
 
 /* Going to comment this function because
@@ -187,6 +188,10 @@ const entityOperations = {
     c.resetTransform();
   },
   player: (player, time, entities) => {
+    if (player.health <= 0) {
+      game.over = true;
+    }
+
     player.speed.forEach((speed, i) => {
       player.pos[i] += speed;
     });
@@ -228,6 +233,14 @@ const entityOperations = {
   },
 };
 
+const renderGameOverMessage = () => {
+  const message = 'Game Over!';
+  const { width } = c.measureText(message);
+
+  c.fillStyle = '#fff';
+  c.fillText(message, a.width / 2 - width / 2, a.height / 2 - 8); // default font size is 16px
+};
+
 // util function for debugging TODO: remove pre-submission!
 const drawBounds = ({ pos, size }) => {
   if (pos && size) {
@@ -243,6 +256,11 @@ const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
   c.fillStyle = '#000';
   c.fillRect(0, 0, a.width, a.height);
+
+  if (game.over) {
+    renderGameOverMessage();
+    return;
+  }
 
   game.entities.forEach(entity => {
     if (entity.deactivated && entity.spawnDelayMs < time) {
