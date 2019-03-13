@@ -5,8 +5,12 @@ const WORLD_SIZE = 1;
 const PLAYER_SPEED = 0.005;
 const PLAYER_SIZE = 0.085;
 const PLAYER_MAX_HEALTH = 1;
+const SCORE_INCREMENT = 1;
+const LEVEL_UP_THRESHOLD = 8;
 const PLAYER_HEALTH_DECREMENT = 0.002;
+const X_COUNT = 3;
 const X_BASE_SPEED = 0.004;
+const X_SPEED_DIVISOR = 3;
 const X_SIZE = 0.06;
 const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
@@ -58,6 +62,7 @@ const createHealthBar = player => ({
 
 const createGame = (...entities) => ({
   entities,
+  level: 1,
   score: 0,
   over: false,
 });
@@ -93,7 +98,7 @@ const computeXProps = (i, spawnOffsetMs = 0) => {
 };
 
 const generateXs = () =>
-  range((WORLD_SIZE / X_SIZE / 3) | 0) // bitwise floor
+  range(X_COUNT)
     .map((_, i) => {
       const [pos, speed, spawnDelayMs] = computeXProps(i);
 
@@ -129,6 +134,14 @@ const bindKeyboard = eventTarget => {
 // this === window in this scope
 const keyboard = bindKeyboard(this);
 
+const incrementScore = () => {
+  game.score += SCORE_INCREMENT;
+
+  if (game.score % LEVEL_UP_THRESHOLD === 0) {
+    game.level++;
+  }
+};
+
 const rotate = entity => {
   const [xSpeed, ySpeed] = entity.speed;
   entity.speed = [-ySpeed, xSpeed]; // TODO: make mutable for perf?! Profile!
@@ -148,6 +161,7 @@ const handleCollisions = (player, entities, time) => {
 
     if (areColliding(player, entity)) {
       player.health = PLAYER_MAX_HEALTH;
+      incrementScore();
       resetX(entity, time);
     }
   });
@@ -162,7 +176,11 @@ const entityOperations = {
     }
 
     e.speed.forEach((speed, i) => {
-      e.pos[i] += speed;
+      /* would rather set this in computeXProps, but
+       * we're dependent upon game declaration being
+       * bound when called by generateXs at startup */
+      // e.pos[i] += speed;
+      e.pos[i] += speed * game.level / X_SPEED_DIVISOR ;
     });
 
     c.fillStyle = '#008';
@@ -250,7 +268,7 @@ const drawBounds = ({ pos, size }) => {
 };
 
 const player = createPlayer();
-const game = createGame(...generateXs(), player, createHealthBar(player));
+const game = createGame(...generateXs(0), player, createHealthBar(player));
 
 const loop = time => {
   c.clearRect(0, 0, a.width, a.height);
