@@ -14,7 +14,7 @@ const SPAWN_DELAY_INCREMENT_MS = 1000;
 const HEALTH_BAR_MARGIN = 0.05;
 const HEALTH_BAR_HEIGHT = 0.06;
 
-const range = n => Array(n).fill(null);
+const range = n => Array(n).fill(0);
 const randomBit = () => Math.round(Math.random());
 
 /* shared logic for width and height
@@ -200,7 +200,7 @@ const entityOperations = {
 
     handleCollisions(player, entities, time);
 
-    c.fillStyle = 'white';
+    c.fillStyle = '#fff';
     c.translate(...project(player.pos[0] + PLAYER_SIZE / 2, player.pos[1] + PLAYER_SIZE / 2));
     c.rotate(Math.atan2(player.speed[1], player.speed[0]));
 
@@ -215,7 +215,7 @@ const entityOperations = {
   },
 
   healthBar: healthBar => {
-    c.fillStyle = 'yellow';
+    c.fillStyle = '#ff0';
 
     c.fillRect(
       ...project(
@@ -252,8 +252,6 @@ const loop = time => {
     if (entity.deactivated) {
       return;
     }
-
-    drawBounds(entity);
 
     entityOperations[entity.type](entity, time, game.entities);
   });
