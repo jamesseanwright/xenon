@@ -1,4 +1,3 @@
-// TODO: profile perf for 60 FPS
 // TODO: run through prettier
 
 const WORLD_SIZE = 1;
