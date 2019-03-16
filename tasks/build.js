@@ -30,6 +30,8 @@ const build = () => {
   const dom = new JSDOM(html);
   const { error, code } = terser.minify(js, terserConfig);
 
+  console.log(code);
+
   if (error) {
     console.error(error);
     process.exit(1);
