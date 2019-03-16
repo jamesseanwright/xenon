@@ -15,7 +15,7 @@ const js1kConfig = require('../js1kconfig.json');
 
 const sourceDir = path.resolve(__dirname, '..', 'src');
 const distDir = path.resolve(__dirname, '..', 'dist');
-const jsPath = path.resolve(sourceDir, 'index.inlined.js');
+const jsPath = path.resolve(sourceDir, 'index.original.js');
 const htmlPath = path.resolve(sourceDir, 'index.html');
 
 const serialiseSubmissionConfig = () =>
@@ -41,7 +41,7 @@ const build = () => {
   const scriptTarget = dom.window.document.querySelector('script[type="demo"]');
   const configTarget = dom.window.document.querySelector('script[id="config"]');
 
-  scriptTarget.textContent = packedCode;
+  scriptTarget.textContent = code;
   configTarget.textContent = serialiseSubmissionConfig();
 
   if (!fs.existsSync(distDir)) {

@@ -220,20 +220,12 @@ const entityOperations = {
     c.rotate(X_ROTATION_SPEED * time);
     c.fillRect(...project(-X_SIZE / 2, -X_SIZE / 2, X_SIZE, X_SIZE));
 
-    c.strokeStyle = '#fff';
+    const [fontSize] = project(X_SIZE);
 
-    c.beginPath();
-    c.moveTo(...project(-X_SIZE / 2 + X_PADDING, -X_SIZE / 2 + X_PADDING));
-    c.lineTo(...project(X_SIZE / 2 - X_PADDING, X_SIZE / 2 - X_PADDING));
-    c.closePath();
-    c.stroke();
+    c.fillStyle = '#fff';
+    c.font = `${fontSize}px sans-serif`;
 
-    c.beginPath();
-    c.moveTo(...project(-X_SIZE / 2 + X_PADDING, X_SIZE / 2 - X_PADDING));
-    c.lineTo(...project(X_SIZE / 2 - X_PADDING, -X_SIZE / 2 + X_PADDING));
-    c.closePath();
-    c.stroke();
-
+    c.fillText('X', ...project(-X_SIZE / 2.9, X_SIZE / 2.8));
     c.resetTransform();
   },
 
@@ -263,7 +255,6 @@ const entityOperations = {
     c.moveTo(...project(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2));
     c.lineTo(...project(PLAYER_SIZE / 2, PLAYER_SIZE / 8)); // TODO: still not exactly equilateral...
     c.lineTo(...project(-PLAYER_SIZE / 2, PLAYER_SIZE / 2));
-    c.lineTo(...project(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2));
     c.closePath();
     c.fill();
     c.resetTransform();
@@ -284,11 +275,13 @@ const entityOperations = {
 };
 
 const renderGameOverMessage = () => {
+  c.font = '24px sans-serif';
+
   const message = 'Game Over!';
   const { width } = c.measureText(message);
 
   c.fillStyle = '#fff';
-  c.fillText(message, a.width / 2 - width / 2, a.height / 2 - 8); // default font size is 16px
+  c.fillText(message, a.width / 2 - width / 2, a.height / 2 - 12);
 };
 
 const player = createPlayer();
@@ -343,13 +336,5 @@ const loop = time => {
   game.iterationCount++;
   requestAnimationFrame(loop);
 };
-
-// sweet tricks to pixelate output
-a.width /= 4;
-a.height /= 4;
-
-a.style.imageRendering = navigator.userAgent.includes('Firefox')
-  ? 'optimizeSpeed'
-  : 'pixelated';
 
 requestAnimationFrame(loop);
