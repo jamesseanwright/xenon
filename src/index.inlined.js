@@ -37,7 +37,7 @@ const computeXSpeed = pos =>
 
 const resetX = (x, time) => {
   x.pos = computeXPos();
-  x.speed = computeXSpeed(x.pos);
+  x.s = computeXSpeed(x.pos);
   x.spawnDelayMs = time;
 };
 
@@ -52,7 +52,7 @@ const xs = [0, 1, 2]
 
     return {
       pos,
-      speed: computeXSpeed(pos),
+      s: computeXSpeed(pos), // speed - reserved Terser prop, but overriding in config isn't working
       spawnable: true,
       deactivated: true,
       spawnDelayMs: i * 1000,
@@ -63,10 +63,7 @@ const keyboard = {};
 
 // this === window in this scope
 this.onkeydown = e => {
-  if (audioContext.state === 'suspended') {
-    audioContext.resume(); // Chrome autoplay policy
-  }
-
+  audioContext.resume(); // Chrome autoplay policy
   keyboard[e.key] = !over;
 };
 
@@ -77,20 +74,19 @@ this.onkeyup = e => {
 const loop = time => {
   // schedule music note change
   lead.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[Math.floor(Math.random() * (baseScale.length - 1))] * 8,
+    18.35 * 1.0594 ** baseScale[(Math.random() * (baseScale.length - 1)) | 0] * 8,
     audioContext.currentTime + 0.3 * iterationCount,
   );
 
   bass.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[Math.floor(Math.random() * (baseScale.length - 1))] * 4,
+    18.35 * 1.0594 ** baseScale[(Math.random() * (baseScale.length - 1)) | 0] * 4,
     audioContext.currentTime + 0.3 * iterationCount,
   );
 
-  c.clearRect(0, 0, a.width, a.height);
   c.fillStyle = '#000';
-  c.fillRect(0, 0, a.width, a.height);
+  c.fillRect(0, 0, 120, 120);
 
-  xs.forEach(x => {
+  xs.map(x => { // 'map'.length < 'forEach'.length
     if (x.deactivated && x.spawnDelayMs < time) {
       x.deactivated = false;
     }
@@ -100,7 +96,7 @@ const loop = time => {
         resetX(x, time);
       }
 
-      x.speed.forEach((speed, i) => {
+      x.s.map((speed, i) => {
         x.pos[i] += speed * level / 3 ;
       });
 
@@ -146,14 +142,12 @@ const loop = time => {
 
         osc.type = 'square';
         osc.frequency.value = 166;
-
-        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
+        gain.gain.value = 0.3;
 
         osc.connect(gain);
         gain.connect(audioContext.destination);
         osc.start();
-        osc.stop(audioContext.currentTime + 0.3);
+        osc.stop(audioContext.currentTime + 0.05);
       }
     }
   });
@@ -164,7 +158,7 @@ const loop = time => {
     health -= 0.002;
   }
 
-  playerSpeed.forEach((speed, i) => {
+  playerSpeed.map((speed, i) => {
     playerPos[i] += speed;
   });
 
