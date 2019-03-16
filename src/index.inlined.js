@@ -1,5 +1,5 @@
 const audioContext = new AudioContext();
-const baseScale = [0, 3, 5, 7, 11];
+const baseScale = [0, 3, 5, 7];
 
 const lead = audioContext.createOscillator();
 const bass = audioContext.createOscillator();
@@ -18,27 +18,15 @@ bass.start();
 // createGame();
 let level = 1;
 let score = 0;
-let iterationCount = 0;
 let over = false;
 
-/* Going to comment this function because
- * it's more involved than the others */
-const computeXProps = (i, spawnOffsetMs = 0) => {
-  // the outer side at which the x sits, above or below the game world on the x or y axis
-  const outerScalar = Math.random() + 0.5 | 0 === 0 ? -0.06 : 1;
+const computeXPos = time =>
+  time % 2 | 0
+    ? [time % 2 | 0 ? -0.06 : 1, time % 1]
+    : [time % 1, time % 2 | 0 ? -0.06 : 1];
 
-  // the second coordinate _within_ the game world's bounds
-  const innerScalar = Math.random();
-
-  /* A means of randomising whether the outer or inner is
-   * used for the x or y value, which can be spread */
-  const pos = Math.random() + 0.5 | 0 === 0
-    ? [outerScalar, innerScalar]
-    : [innerScalar, outerScalar];
-
-  /* negate the pos vector so the x travels in the
-   * right direction. Sorry for the nested ternary! */
-  const speed = pos.map(p =>
+const computeXSpeed = pos =>
+  pos.map(p =>
     p === -0.06
       ? 0.004
       : p === 1
@@ -46,45 +34,25 @@ const computeXProps = (i, spawnOffsetMs = 0) => {
         : 0
   );
 
-  const spawnDelayMs = i * 1000 + spawnOffsetMs;
-
-  return [pos, speed, spawnDelayMs];
-};
-
-const resetX = (x, time) => {
-  const [pos, speed, spawnDelayMs] = computeXProps(0, time);
-
-  x.pos = pos;
-  x.speed = speed;
-  x.spawnDelayMs = spawnDelayMs;
-};
-
 // createPlayer
 let playerPos = [0.5 - 0.085 / 2, 0.5 - 0.085 / 2];
 let playerSpeed = [0.005, 0];
 let health = 1;
 
 const xs = [0, 1, 2]
-  .map(i => {
-    const [pos, speed, spawnDelayMs] = computeXProps(i);
-
-    return {
-      pos,
-      speed,
-      spawnable: true,
-      deactivated: true,
-      spawnDelayMs,
-    };
-  });
+  .map(i => computeXPos(60 * i))
+  .map((pos, i) => ({
+    pos,
+    speed: computeXSpeed(pos),
+    deactivated: true,
+    spawnDelayMs: 1000 * i,
+  }));
 
 const keyboard = {};
 
 // this === window in this scope
 this.onkeydown = e => {
-  if (audioContext.state === 'suspended') {
-    audioContext.resume(); // Chrome autoplay policy
-  }
-
+  audioContext.resume(); // Chrome autoplay policy
   keyboard[e.key] = !over;
 };
 
@@ -94,21 +62,15 @@ this.onkeyup = e => {
 
 const loop = time => {
   // schedule music note change
-  lead.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[Math.floor(Math.random() * (baseScale.length - 1))] * 8,
-    audioContext.currentTime + (0.3 - 0.02 * (level - 1)) * iterationCount,
-  );
+  if (time % 333 < 16.66) {
+    lead.frequency.value = 18.35 * 1.0594 ** baseScale[time % 4 | 0] * 8;
+    bass.frequency.value = 18.35 * 1.0594 ** baseScale[(time + 2) % 4 | 0] * 4;
+  }
 
-  bass.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[Math.floor(Math.random() * (baseScale.length - 1))] * 4,
-    audioContext.currentTime + (0.3 - 0.02 * (level - 1)) * iterationCount,
-  );
-
-  c.clearRect(0, 0, a.width, a.height);
   c.fillStyle = '#000';
-  c.fillRect(0, 0, a.width, a.height);
+  c.fillRect(0, 0, 480, 480);
 
-  xs.forEach(x => {
+  xs.map(x => {
     if (x.deactivated && x.spawnDelayMs < time) {
       x.deactivated = false;
     }
@@ -118,10 +80,12 @@ const loop = time => {
     }
 
     if (x.pos.some(p => p < 0 - 0.06 || p > 1 + 0.06)) {
-      resetX(x, time);
+      x.pos = computeXPos(time);
+      x.speed = computeXSpeed(x.pos);
+      x.spawnDelayMs = time;
     }
 
-    x.speed.forEach((speed, i) => {
+    x.speed.map((speed, i) => {
       x.pos[i] += speed * level / 3;
     });
 
@@ -151,21 +115,17 @@ const loop = time => {
         level++;
       }
 
-      resetX(x, time);
+      x.pos = computeXPos(time);
+      x.speed = computeXSpeed(x.pos);
+      x.spawnDelayMs = time;
 
       const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
 
-      osc.type = 'square';
-      osc.frequency.value = 166;
-
-      gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
+      osc.frequency.value = 340;
 
       osc.connect(gain);
-      gain.connect(audioContext.destination);
-      osc.start();
-      osc.stop(audioContext.currentTime + 0.3);
+      osc.start(time / 1000); // TODO: out of sync
+      osc.stop(time / 1000 + 0.025);
     }
   });
 
@@ -175,7 +135,7 @@ const loop = time => {
     health -= 0.002;
   }
 
-  playerSpeed.forEach((speed, i) => {
+  playerSpeed.map((speed, i) => { // 'map'.length < 'forEach'.length
     playerPos[i] += speed;
   });
 
@@ -192,21 +152,17 @@ const loop = time => {
   c.moveTo(-20.4, -20.4);
   c.lineTo(20.4, 5.1);
   c.lineTo(-20.4, 20.4);
-  c.lineTo(-20.4, -20.4);
   c.closePath();
   c.fill();
   c.resetTransform();
 
-  c.fillStyle = '#ff0';
-
-  c.fillRect(24, 24, health * 432, 4.8);
-
   if (over) {
-    c.fillStyle = '#fff';
-    c.fillText('Game Over!', 161.5, 232,);
+    c.fillText('Game Over!', 161.5, 232);
   }
 
-  iterationCount++;
+  c.fillStyle = '#ff0';
+  c.fillRect(24, 24, health * 432, 4.8);
+
   requestAnimationFrame(loop);
 };
 
