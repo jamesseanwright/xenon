@@ -45,7 +45,6 @@ const xs = [0, 1, 2]
   .map((pos, i) => ({
     pos,
     s: computeXSpeed(pos), // speed - reserved Terser prop, but overriding in config isn't working
-    spawnable: true,
     deactivated: true,
     spawnDelayMs: i * 1000,
   }));

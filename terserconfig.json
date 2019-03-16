@@ -12,6 +12,6 @@
     }
   },
   "output": {
-    "semicolons": true
+    "semicolons": false
   }
 }

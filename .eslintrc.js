@@ -12,7 +12,8 @@ module.exports = {
   globals: {
     c: 'readable',
     a: 'readable',
-    mozPaintCount: 'readable'
+    mozPaintCount: 'readable',
+    mozInnerScreenY: 'readable',
   },
   rules: {
     indent: ['error', 2],
