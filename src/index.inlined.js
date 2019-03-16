@@ -128,21 +128,21 @@ const loop = time => {
 
     c.fillStyle = '#008';
 
-    c.translate((x.pos[0] + 0.06 / 2) * 120, (x.pos[1] + 0.06 / 2) * 120);
+    c.translate((x.pos[0] + 0.03) * 120, (x.pos[1] + 0.03) * 120);
     c.rotate(0.002 * time);
-    c.fillRect(-0.06 / 2 * 120, -0.06 / 2 * 120, 0.06 * 120, 0.06 * 120);
+    c.fillRect(-3.6, -3.6, 7.2, 7.2);
 
     c.strokeStyle = '#fff';
 
     c.beginPath();
-    c.moveTo((-0.06 / 2 + 0.01) * 120, (-0.06 / 2 + 0.01) * 120);
-    c.lineTo((0.06 / 2 - 0.01) * 120, (0.06 / 2 - 0.01) * 120);
+    c.moveTo(-2.4, -2.4);
+    c.lineTo(2.4, 2.4);
     c.closePath();
     c.stroke();
 
     c.beginPath();
-    c.moveTo((-0.06 / 2 + 0.01) * 120, (0.06 / 2 - 0.01) * 120);
-    c.lineTo((0.06 / 2 - 0.01) * 120, (-0.06 / 2 + 0.01) * 120);
+    c.moveTo(-2.4, 2.4);
+    c.lineTo(2.4, -2.4);
     c.closePath();
     c.stroke();
 
@@ -150,7 +150,7 @@ const loop = time => {
 
     if (
       playerPos[0] + 0.085 >= x.pos[0] &&
-      playerPos[0] <= x.pos[0] + x.size &&
+      playerPos[0] <= x.pos[0] + x.size && // TODO -> cull size prop
       playerPos[1] + 0.085 >= x.pos[1] &&
       playerPos[1] <= x.pos[1] + x.size
     ) {
@@ -199,10 +199,10 @@ const loop = time => {
   c.rotate(Math.atan2(playerSpeed[1], playerSpeed[0]));
 
   c.beginPath();
-  c.moveTo(-0.085 / 2 * 120, -0.085 / 2 * 120);
-  c.lineTo(0.085 / 2 * 120, 0.085 / 8 * 120);
-  c.lineTo(-0.085 / 2 * 120, 0.085 / 2 * 120);
-  c.lineTo(-0.085 / 2 * 120, -0.085 / 2 * 120);
+  c.moveTo(-5.1, -5.1);
+  c.lineTo(5.1, 1.275);
+  c.lineTo(-5.1, 5.1);
+  c.lineTo(-5.1, -5.1);
   c.closePath();
   c.fill();
   c.resetTransform();
@@ -210,10 +210,10 @@ const loop = time => {
   c.fillStyle = '#ff0';
 
   c.fillRect(
-    0.05 * 120,
-    0.05 * 120,
-    (1 - 0.05 * 2) * health * 120,
-    (0.06 - 0.05) * 120,
+    6,
+    6,
+    0.9 * health * 120,
+    1.2,
   );
 
   if (over) {
@@ -231,8 +231,8 @@ const loop = time => {
 };
 
 // sweet tricks to pixelate output
-a.width /= 4;
-a.height /= 4;
+a.width = 120;
+a.height = 120;
 
 a.style.imageRendering = 'mozPaintCount' in this // shorter than user agent test
   ? 'optimizeSpeed'
