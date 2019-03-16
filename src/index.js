@@ -1,5 +1,3 @@
-// TODO: run through prettier
-
 const WORLD_SIZE = 1;
 const PLAYER_SPEED = 0.005;
 const PLAYER_SIZE = 0.085;
@@ -238,6 +236,7 @@ const entityOperations = {
 
     c.resetTransform();
   },
+
   player: (player, time, entities) => {
     if (player.health <= 0) {
       game.over = true;
@@ -299,6 +298,10 @@ const bindKeyboard = eventTarget => {
   const bindings = {};
 
   eventTarget.onkeydown = e => {
+    if (audioContext.state === 'suspended') {
+      audioContext.resume(); // Chrome autoplay policy
+    }
+
     bindings[e.key] = !game.over;
   };
 
