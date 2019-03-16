@@ -96,12 +96,12 @@ const loop = time => {
   // schedule music note change
   lead.frequency.setValueAtTime(
     18.35 * 1.0594 ** baseScale[Math.floor(Math.random() * (baseScale.length - 1))] * 8,
-    audioContext.currentTime + 0.3 * iterationCount,
+    audioContext.currentTime + (0.3 - 0.02 * (level - 1)) * iterationCount,
   );
 
   bass.frequency.setValueAtTime(
     18.35 * 1.0594 ** baseScale[Math.floor(Math.random() * (baseScale.length - 1))] * 4,
-    audioContext.currentTime + 0.3 * iterationCount,
+    audioContext.currentTime + (0.3 - 0.02 * (level - 1)) * iterationCount,
   );
 
   c.clearRect(0, 0, a.width, a.height);
@@ -129,12 +129,12 @@ const loop = time => {
 
     c.translate((x.pos[0] + 0.06 / 2) * 480, (x.pos[1] + 0.06 / 2) * 480);
     c.rotate(0.002 * time);
-    c.fillRect(-0.06 / 2 * 480, -0.06 / 2 * 480, 0.06 * 480, 0.06 * 480);
+    c.fillRect(-14.4, -14.4, 28.8, 28.8);
 
     c.fillStyle = '#fff';
-    c.font = `${0.06 * 480}px sans-serif`;
+    c.font = '28.8px sans-serif';
 
-    c.fillText('X', (-0.06 * 480) / 2.9, (0.06 * 480) / 2.8);
+    c.fillText('X', (-28.8) / 2.9, (28.8) / 2.8);
 
     c.resetTransform();
 
@@ -189,31 +189,21 @@ const loop = time => {
   c.rotate(Math.atan2(playerSpeed[1], playerSpeed[0]));
 
   c.beginPath();
-  c.moveTo(-0.085 / 2 * 480, -0.085 / 2 * 480);
-  c.lineTo(0.085 / 2 * 480, 0.085 / 8 * 480);
-  c.lineTo(-0.085 / 2 * 480, 0.085 / 2 * 480);
-  c.lineTo(-0.085 / 2 * 480, -0.085 / 2 * 480);
+  c.moveTo(-20.4, -20.4);
+  c.lineTo(20.4, 5.1);
+  c.lineTo(-20.4, 20.4);
+  c.lineTo(-20.4, -20.4);
   c.closePath();
   c.fill();
   c.resetTransform();
 
   c.fillStyle = '#ff0';
 
-  c.fillRect(
-    0.05 * 480,
-    0.05 * 480,
-    (1 - 0.05 * 2) * health * 480,
-    (0.06 - 0.05) * 480,
-  );
+  c.fillRect(24, 24, health * 432, 4.8);
 
   if (over) {
     c.fillStyle = '#fff';
-
-    c.fillText(
-      'Game Over!',
-      a.width / 2 - c.measureText('Game Over!').width / 2,
-      a.height / 2 - 8,
-    );
+    c.fillText('Game Over!', 161.5, 232,);
   }
 
   iterationCount++;
