@@ -9,22 +9,22 @@ gain.gain.value = 0.1;
 lead.type = 'square';
 bass.type = 'triangle';
 
-bass.connect(gain);
-lead.connect(gain);
+[bass, lead].map(n => {
+  n.connect(gain);
+  n.start();
+});
+
 gain.connect(audioContext.destination);
-lead.start();
-bass.start();
 
 // createGame();
 let level = 1;
 let score = 0;
-let iterationCount = 0;
 let over = false;
 
 const computeXPos = time =>
-  time % 2
-    ? [time % 2 ? -0.06 : 1, time % 120]
-    : [time % 120, time % 2 ? -0.06 : 1];
+  time % 2 | 0
+    ? [time % 2 | 0 ? -0.06 : 1, time % 1]
+    : [time % 1, time % 2 | 0 ? -0.06 : 1];
 
 const computeXSpeed = pos =>
   pos.map(p =>
@@ -36,7 +36,7 @@ const computeXSpeed = pos =>
   );
 
 const resetX = (x, time) => {
-  x.pos = computeXPos();
+  x.pos = computeXPos(time);
   x.s = computeXSpeed(x.pos);
   x.spawnDelayMs = time;
 };
@@ -47,7 +47,7 @@ let playerSpeed = [0.005, 0];
 let health = 1;
 
 const xs = [0, 1, 2]
-  .map(() => computeXPos())
+  .map(i => computeXPos(60 * i))
   .map((pos, i) => ({
     pos,
     s: computeXSpeed(pos), // speed - reserved Terser prop, but overriding in config isn't working
@@ -68,17 +68,14 @@ this.onkeyup = e => {
   keyboard[e.key] = false;
 };
 
-const loop = time => {
-  // schedule music note change
-  lead.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[time % 4] * 8,
-    Math.max(time, 0) / 1000 + 0.3 * iterationCount,
-  );
+const loop = now => {
+  const time = Math.max(now, 0);
 
-  bass.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[time % 4] * 4,
-    Math.max(time, 0) / 1000 + 0.3 * iterationCount,
-  );
+  // schedule music note change
+  if (time % 333 < 16.66) {
+    lead.frequency.value = 18.35 * 1.0594 ** baseScale[time % 3 | 0] * 8;
+    bass.frequency.value = 18.35 * 1.0594 ** baseScale[(time + 1) % 4 | 0] * 4;
+  }
 
   c.fillStyle = '#000';
   c.fillRect(0, 0, 120, 120);
@@ -186,7 +183,6 @@ const loop = time => {
     c.fillText('😢', 54, 64);
   }
 
-  iterationCount++;
   requestAnimationFrame(loop);
 };
 
