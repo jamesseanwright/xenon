@@ -1,5 +1,5 @@
 const audioContext = new AudioContext();
-const baseScale = [0, 3, 5, 7, 11];
+const baseScale = [0, 3, 5, 7];
 
 const lead = audioContext.createOscillator();
 const bass = audioContext.createOscillator();
@@ -21,10 +21,10 @@ let score = 0;
 let iterationCount = 0;
 let over = false;
 
-const computeXPos = () =>
-  Math.random() + 0.5 | 0 > 0
-    ? [Math.random() + 0.5 | 0 > 0 ? -0.06 : 1, Math.random()]
-    : [Math.random(), Math.random() + 0.5 | 0 > 0 ? -0.06 : 1];
+const computeXPos = time =>
+  time % 2
+    ? [time % 2 ? -0.06 : 1, time % 120]
+    : [time % 120, time % 2 ? -0.06 : 1];
 
 const computeXSpeed = pos =>
   pos.map(p =>
@@ -47,17 +47,14 @@ let playerSpeed = [0.005, 0];
 let health = 1;
 
 const xs = [0, 1, 2]
-  .map(i => {
-    const pos = computeXPos();
-
-    return {
-      pos,
-      s: computeXSpeed(pos), // speed - reserved Terser prop, but overriding in config isn't working
-      spawnable: true,
-      deactivated: true,
-      spawnDelayMs: i * 1000,
-    };
-  });
+  .map(() => computeXPos())
+  .map((pos, i) => ({
+    pos,
+    s: computeXSpeed(pos), // speed - reserved Terser prop, but overriding in config isn't working
+    spawnable: true,
+    deactivated: true,
+    spawnDelayMs: i * 1000,
+  }));
 
 const keyboard = {};
 
@@ -74,13 +71,13 @@ this.onkeyup = e => {
 const loop = time => {
   // schedule music note change
   lead.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[(Math.random() * (baseScale.length - 1)) | 0] * 8,
-    audioContext.currentTime + 0.3 * iterationCount,
+    18.35 * 1.0594 ** baseScale[time % 4] * 8,
+    Math.max(time, 0) / 1000 + 0.3 * iterationCount,
   );
 
   bass.frequency.setValueAtTime(
-    18.35 * 1.0594 ** baseScale[(Math.random() * (baseScale.length - 1)) | 0] * 4,
-    audioContext.currentTime + 0.3 * iterationCount,
+    18.35 * 1.0594 ** baseScale[time % 4] * 4,
+    Math.max(time, 0) / 1000 + 0.3 * iterationCount,
   );
 
   c.fillStyle = '#000';
@@ -142,12 +139,12 @@ const loop = time => {
 
         osc.type = 'square';
         osc.frequency.value = 166;
-        gain.gain.value = 0.3;
+        gain.gain.value = 0.2;
 
         osc.connect(gain);
         gain.connect(audioContext.destination);
-        osc.start();
-        osc.stop(audioContext.currentTime + 0.05);
+        osc.start(time / 1000);
+        osc.stop(time / 1000 + 0.05);
       }
     }
   });
@@ -186,7 +183,7 @@ const loop = time => {
 
   if (over) {
     c.fillStyle = '#fff';
-    c.fillText('Game Over!', 33, 52);
+    c.fillText('😢', 54, 64);
   }
 
   iterationCount++;
@@ -194,8 +191,7 @@ const loop = time => {
 };
 
 // sweet tricks to pixelate output
-a.width = 120;
-a.height = 120;
+a.width = a.height = 120;
 
 a.style.imageRendering = 'mozPaintCount' in this // shorter than user agent test
   ? 'optimizeSpeed'

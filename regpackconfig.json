@@ -1,4 +1,16 @@
 {
+  "hashWebGLContext": false,
+  "hashAudioContext": true,
+  "contextVariableName": false,
+  "contextType": 0,
+  "reassignVars": true,
+  "crushGainFactor": 1,
+  "crushLengthFactor": 0,
+  "crushCopiesFactor": 0,
+  "crushTiebreakerFactor": 1,
+  "wrapInSetInterval": false,
+  "timeVariableName": "",
+  "useES6": true,
   "withMath": true,
   "hash2DContext": true,
   "varsNotReassigned": ["a", "c"]
