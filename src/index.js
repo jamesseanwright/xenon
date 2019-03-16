@@ -16,6 +16,10 @@ const X_ROTATION_SPEED = 0.002;
 const SPAWN_DELAY_INCREMENT_MS = 1000;
 const HEALTH_BAR_MARGIN = 0.05;
 const HEALTH_BAR_HEIGHT = 0.06;
+const TWELTH_ROOT_OF_TWO = 1.0594;
+const MUSIC_BASE_HZ = 18.35;
+
+const baseScale = [0, 3, 5, 7, 11];
 
 const range = n => Array(n).fill(0);
 const randomBit = () => Math.random() + 0.5 | 0;
@@ -30,12 +34,39 @@ const playCollectionSound = () => {
   osc.frequency.value = 166;
 
   gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.000001, audioContext.currentTime + 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
 
   osc.connect(gain);
   gain.connect(audioContext.destination);
   osc.start();
   osc.stop(audioContext.currentTime + 0.3);
+};
+
+const createMusicScheduler = () => {
+  const lead = audioContext.createOscillator();
+  const bass = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  gain.gain.value = 0.1;
+  lead.type = 'square';
+  bass.type = 'triangle';
+
+  bass.connect(gain);
+  lead.connect(gain);
+  gain.connect(audioContext.destination);
+  lead.start();
+  bass.start();
+
+  return i => {
+    const noteStart = audioContext.currentTime + 0.3 * i;
+    const leadNote = baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
+    const bassNote = baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
+    const leadHz = MUSIC_BASE_HZ * TWELTH_ROOT_OF_TWO ** leadNote * 8;
+    const bassHz = MUSIC_BASE_HZ * TWELTH_ROOT_OF_TWO ** bassNote * 4;
+
+    lead.frequency.setValueAtTime(leadHz, noteStart);
+    bass.frequency.setValueAtTime(bassHz, noteStart);
+  };
 };
 
 /* shared logic for width and height
@@ -81,6 +112,7 @@ const createGame = (...entities) => ({
   entities,
   level: 1,
   score: 0,
+  iterationCount: 0,
   over: false,
 });
 
@@ -133,23 +165,6 @@ const resetX = (x, time) => {
   x.speed = speed;
   x.spawnDelayMs = spawnDelayMs;
 };
-
-const bindKeyboard = eventTarget => {
-  const bindings = {};
-
-  eventTarget.onkeydown = e => {
-    bindings[e.key] = true;
-  };
-
-  eventTarget.onkeyup = e => {
-    bindings[e.key] = false;
-  };
-
-  return bindings;
-};
-
-// this === window in this scope
-const keyboard = bindKeyboard(this);
 
 const incrementScore = () => {
   game.score += SCORE_INCREMENT;
@@ -226,6 +241,8 @@ const entityOperations = {
   player: (player, time, entities) => {
     if (player.health <= 0) {
       game.over = true;
+    } else {
+      player.health -= PLAYER_HEALTH_DECREMENT;
     }
 
     player.speed.forEach((speed, i) => {
@@ -236,8 +253,6 @@ const entityOperations = {
       rotate(player);
       keyboard.x = false; // to prevent infinite rotation
     }
-
-    player.health -= PLAYER_HEALTH_DECREMENT;
 
     handleCollisions(player, entities, time);
 
@@ -280,14 +295,33 @@ const renderGameOverMessage = () => {
 const player = createPlayer();
 const game = createGame(...generateXs(0), player, createHealthBar(player));
 
+const bindKeyboard = eventTarget => {
+  const bindings = {};
+
+  eventTarget.onkeydown = e => {
+    bindings[e.key] = !game.over;
+  };
+
+  eventTarget.onkeyup = e => {
+    bindings[e.key] = false;
+  };
+
+  return bindings;
+};
+
+// this === window in this scope
+const keyboard = bindKeyboard(this);
+const scheduleNoteChange = createMusicScheduler();
+
 const loop = time => {
+  scheduleNoteChange(game.iterationCount);
+
   c.clearRect(0, 0, a.width, a.height);
   c.fillStyle = '#000';
   c.fillRect(0, 0, a.width, a.height);
 
   if (game.over) {
     renderGameOverMessage();
-    return;
   }
 
   game.entities.forEach(entity => {
@@ -302,6 +336,8 @@ const loop = time => {
     entityOperations[entity.type](entity, time, game.entities);
   });
 
+
+  game.iterationCount++;
   requestAnimationFrame(loop);
 };
 

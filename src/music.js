@@ -21,10 +21,8 @@ Array(200)
   .fill(0)
   .forEach((_, i) => {
     const noteStart = ctx.currentTime + 0.3 * i;
-    const leadNote =
-      baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
-    const bassNote =
-      baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
+    const leadNote = baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
+    const bassNote = baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
     const leadHz = bazeHz * twelthRootOfTwo ** leadNote * 8;
     const bassHz = bazeHz * twelthRootOfTwo ** bassNote * 4;
 
