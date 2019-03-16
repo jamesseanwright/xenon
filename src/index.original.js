@@ -55,7 +55,7 @@ const createMusicScheduler = () => {
   bass.start();
 
   return i => {
-    const noteStart = audioContext.currentTime + 0.3 * i;
+    const noteStart = audioContext.currentTime + (0.3 - 0.02 * (game.level - 1)) * i;
     const leadNote = baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
     const bassNote = baseScale[Math.floor(Math.random() * (baseScale.length - 1))];
     const leadHz = MUSIC_BASE_HZ * TWELTH_ROOT_OF_TWO ** leadNote * 8;
