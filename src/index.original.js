@@ -9,7 +9,6 @@ const X_COUNT = 3;
 const X_BASE_SPEED = 0.004;
 const X_SPEED_DIVISOR = 3;
 const X_SIZE = 0.06;
-const X_PADDING = 0.01;
 const X_ROTATION_SPEED = 0.002;
 const SPAWN_DELAY_INCREMENT_MS = 1000;
 const HEALTH_BAR_MARGIN = 0.05;
