@@ -21,11 +21,6 @@ let score = 0;
 let iterationCount = 0;
 let over = false;
 
-/* shared logic for width and height
- * as game world and screen projection
- * are square. This will save bytes! */
-const project = (...inputs) => inputs.map(i => i * a.width);
-
 /* Going to comment this function because
  * it's more involved than the others */
 const computeXProps = (i, spawnOffsetMs = 0) => {
@@ -56,22 +51,6 @@ const computeXProps = (i, spawnOffsetMs = 0) => {
   return [pos, speed, spawnDelayMs];
 };
 
-const generateXs = () =>
-  [0, 1, 2]
-    .map(i => {
-      const [pos, speed, spawnDelayMs] = computeXProps(i);
-
-      return {
-        type: 'x',
-        pos,
-        size: 0.06,
-        speed,
-        spawnable: true,
-        deactivated: true,
-        spawnDelayMs,
-      };
-    });
-
 const resetX = (x, time) => {
   const [pos, speed, spawnDelayMs] = computeXProps(0, time);
 
@@ -80,14 +59,24 @@ const resetX = (x, time) => {
   x.spawnDelayMs = spawnDelayMs;
 };
 
-const player = {
-  pos: [0.5 - 0.085 / 2, 0.5 - 0.085 / 2],
-  size: 0.085,
-  speed: [0.005, 0],
-  health: 1,
-};
+// createPlayer
+let playerPos = [0.5 - 0.085 / 2, 0.5 - 0.085 / 2];
+let playerSpeed = [0.005, 0];
+let health = 1;
 
-const xs = generateXs(0);
+const xs = [0, 1, 2]
+  .map(i => {
+    const [pos, speed, spawnDelayMs] = computeXProps(i);
+
+    return {
+      pos,
+      size: 0.06,
+      speed,
+      spawnable: true,
+      deactivated: true,
+      spawnDelayMs,
+    };
+  });
 
 const keyboard = {};
 
@@ -139,33 +128,33 @@ const loop = time => {
 
     c.fillStyle = '#008';
 
-    c.translate(...project(x.pos[0] + 0.06 / 2, x.pos[1] + 0.06 / 2));
+    c.translate((x.pos[0] + 0.06 / 2) * 120, (x.pos[1] + 0.06 / 2) * 120);
     c.rotate(0.002 * time);
-    c.fillRect(...project(-0.06 / 2, -0.06 / 2, 0.06, 0.06));
+    c.fillRect(-0.06 / 2 * 120, -0.06 / 2 * 120, 0.06 * 120, 0.06 * 120);
 
     c.strokeStyle = '#fff';
 
     c.beginPath();
-    c.moveTo(...project(-0.06 / 2 + 0.01, -0.06 / 2 + 0.01));
-    c.lineTo(...project(0.06 / 2 - 0.01, 0.06 / 2 - 0.01));
+    c.moveTo((-0.06 / 2 + 0.01) * 120, (-0.06 / 2 + 0.01) * 120);
+    c.lineTo((0.06 / 2 - 0.01) * 120, (0.06 / 2 - 0.01) * 120);
     c.closePath();
     c.stroke();
 
     c.beginPath();
-    c.moveTo(...project(-0.06 / 2 + 0.01, 0.06 / 2 - 0.01));
-    c.lineTo(...project(0.06 / 2 - 0.01, -0.06 / 2 + 0.01));
+    c.moveTo((-0.06 / 2 + 0.01) * 120, (0.06 / 2 - 0.01) * 120);
+    c.lineTo((0.06 / 2 - 0.01) * 120, (-0.06 / 2 + 0.01) * 120);
     c.closePath();
     c.stroke();
 
     c.resetTransform();
 
     if (
-      player.pos[0] + player.size >= x.pos[0] &&
-      player.pos[0] <= x.pos[0] + x.size &&
-      player.pos[1] + player.size >= x.pos[1] &&
-      player.pos[1] <= x.pos[1] + x.size
+      playerPos[0] + 0.085 >= x.pos[0] &&
+      playerPos[0] <= x.pos[0] + x.size &&
+      playerPos[1] + 0.085 >= x.pos[1] &&
+      playerPos[1] <= x.pos[1] + x.size
     ) {
-      player.health = 1;
+      health = 1;
       score += 1;
 
       if (score % 8 === 0) {
@@ -190,30 +179,30 @@ const loop = time => {
     }
   });
 
-  if (player.health <= 0) {
+  if (health <= 0) {
     over = true;
   } else {
-    player.health -= 0.002;
+    health -= 0.002;
   }
 
-  player.speed.forEach((speed, i) => {
-    player.pos[i] += speed;
+  playerSpeed.forEach((speed, i) => {
+    playerPos[i] += speed;
   });
 
   if (keyboard.x) {
-    player.speed = [-player.speed[1], player.speed[0]];
+    playerSpeed = [-playerSpeed[1], playerSpeed[0]];
     keyboard.x = false; // to prevent infinite rotation
   }
 
   c.fillStyle = '#fff';
-  c.translate(...project(player.pos[0] + 0.085 / 2, player.pos[1] + 0.085 / 2));
-  c.rotate(Math.atan2(player.speed[1], player.speed[0]));
+  c.translate((playerPos[0] + 0.085 / 2) * 120, (playerPos[1] + 0.085 / 2) * 120);
+  c.rotate(Math.atan2(playerSpeed[1], playerSpeed[0]));
 
   c.beginPath();
-  c.moveTo(...project(-0.085 / 2, -0.085 / 2));
-  c.lineTo(...project(0.085 / 2, 0.085 / 8));
-  c.lineTo(...project(-0.085 / 2, 0.085 / 2));
-  c.lineTo(...project(-0.085 / 2, -0.085 / 2));
+  c.moveTo(-0.085 / 2 * 120, -0.085 / 2 * 120);
+  c.lineTo(0.085 / 2 * 120, 0.085 / 8 * 120);
+  c.lineTo(-0.085 / 2 * 120, 0.085 / 2 * 120);
+  c.lineTo(-0.085 / 2 * 120, -0.085 / 2 * 120);
   c.closePath();
   c.fill();
   c.resetTransform();
@@ -221,12 +210,10 @@ const loop = time => {
   c.fillStyle = '#ff0';
 
   c.fillRect(
-    ...project(
-      0.05,
-      0.05,
-      (1 - 0.05 * 2) * player.health,
-      0.06 - 0.05,
-    ),
+    0.05 * 120,
+    0.05 * 120,
+    (1 - 0.05 * 2) * health * 120,
+    (0.06 - 0.05) * 120,
   );
 
   if (over) {
