@@ -70,7 +70,6 @@ const xs = [0, 1, 2]
 
     return {
       pos,
-      size: 0.06,
       speed,
       spawnable: true,
       deactivated: true,
@@ -118,7 +117,7 @@ const loop = time => {
       return;
     }
 
-    if (x.pos.some(p => p < 0 - x.size || p > 1 + x.size)) {
+    if (x.pos.some(p => p < 0 - 0.06 || p > 1 + 0.06)) {
       resetX(x, time);
     }
 
@@ -141,9 +140,9 @@ const loop = time => {
 
     if (
       playerPos[0] + 0.085 >= x.pos[0] &&
-      playerPos[0] <= x.pos[0] + x.size &&
+      playerPos[0] <= x.pos[0] + 0.06 &&
       playerPos[1] + 0.085 >= x.pos[1] &&
-      playerPos[1] <= x.pos[1] + x.size
+      playerPos[1] <= x.pos[1] + 0.06
     ) {
       health = 1;
       score += 1;
