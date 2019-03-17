@@ -11,7 +11,7 @@
   "wrapInSetInterval": false,
   "timeVariableName": "",
   "useES6": true,
-  "withMath": true,
+  "withMath": false,
   "hash2DContext": true,
   "varsNotReassigned": ["a", "c"]
 }
