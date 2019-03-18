@@ -30,8 +30,6 @@ const build = () => {
   const dom = new JSDOM(html);
   const { error, code } = terser.minify(js, terserConfig);
 
-  console.log(code);
-
   if (error) {
     console.error(error);
     process.exit(1);
@@ -41,7 +39,7 @@ const build = () => {
   const scriptTarget = dom.window.document.querySelector('script[type="demo"]');
   const configTarget = dom.window.document.querySelector('script[id="config"]');
 
-  scriptTarget.textContent = code;
+  scriptTarget.textContent = packedCode;
   configTarget.textContent = serialiseSubmissionConfig();
 
   if (!fs.existsSync(distDir)) {
