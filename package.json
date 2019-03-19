@@ -1,8 +1,8 @@
 {
-  "name": "js1k-2019",
-  "version": "0.0.1",
-  "description": "My entry for JS1K 2019",
-  "main": "dist/index.js",
+  "name": "xenon",
+  "version": "1.0.0",
+  "description": "A canvas game with audio for JS1K 2019",
+  "main": "dist/index.html",
   "scripts": {
     "build": "./tasks/build.js",
     "dev": "./tasks/dev.js",
