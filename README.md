@@ -10,7 +10,7 @@ X - rotate your ship 90° clockwise
 
 ## Play Online
 
-Currently pending approval by JS1K. Will replace this with a link once it has been published.
+Currently pending approval by JS1k. Will replace this with a link once it has been published.
 
 ## Local Development
 

@@ -1,7 +1,7 @@
 {
   "name": "xenon",
   "version": "1.0.0",
-  "description": "A canvas game with audio for JS1K 2019",
+  "description": "A canvas game with audio for JS1k 2019",
   "main": "dist/index.html",
   "scripts": {
     "build": "./tasks/build.js",
