@@ -2,7 +2,7 @@
 
 ![Screencap](https://raw.githubusercontent.com/jamesseanwright/xenon/master/misc/screencap.gif)
 
-A canvas game with audio for [JS1K 2019](https://js1k.com/2019-x). Collect as many Xs as possible before your health expires!
+A canvas game with audio for [JS1k 2019](https://js1k.com/2019-x). Collect as many Xs as possible before your health expires!
 
 ## Controls
 
