@@ -9,8 +9,7 @@ A canvas game with audio for [JS1k 2019](https://js1k.com/2019-x). Collect as ma
 X - rotate your ship 90° clockwise
 
 ## Play Online
-
-Currently pending approval by JS1k. Will replace this with a link once it has been published.
+You can play via [the JS1k entry page](https://js1k.com/2019-x/details/4160).
 
 ## Local Development
 
